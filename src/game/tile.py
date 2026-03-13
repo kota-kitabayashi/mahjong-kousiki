@@ -17,6 +17,8 @@ ROUND_NAMES = ['東', '南']
 
 
 def tile_to_index(tile: str) -> int:
+    # 牌を文字列から整数にする関数
+    # 1mであればnumは1suitはmになる。
     num = int(tile[0])
     suit = tile[1]
     if suit == 'm':
