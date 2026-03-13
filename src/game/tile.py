@@ -47,6 +47,8 @@ def index_to_tile(index: int) -> str:
 
 
 def tile_sort_key(tile: str) -> int:
+    # 牌を並び替えるために作ってるらしい
+    # そのまま使えよって思う
     return tile_to_index(tile)
 
 
