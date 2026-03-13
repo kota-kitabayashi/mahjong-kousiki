@@ -1,8 +1,15 @@
+# 世の中には将来クラスというものがあるらしい。
+# 使うクラスがどんなものか見なくてもいいんだってさ
+# よってクラス書く順番気にしなくていいらしい。ただの便利
 from __future__ import annotations
 
+# self.name = aaaをname: aaaにできる。クラスを簡潔にできるらしい
+# このプログラムはデータ持つだけのクラスが多いので便利らしい
 from dataclasses import dataclass
+# リストの型を明示したいらしい
 from typing import List
 
+# HONOR(字牌)だけ別で書いてるのは数牌に比べて性質が違うかららしい
 SUITS = ('m', 'p', 's', 'z')
 HONORS = {27: '1z', 28: '2z', 29: '3z', 30: '4z', 31: '5z', 32: '6z', 33: '7z'}
 WIND_NAMES = ['東', '南', '西', '北']
