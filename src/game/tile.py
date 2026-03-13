@@ -73,6 +73,11 @@ def counts_to_tiles(counts: List[int]) -> List[str]:
 
 
 def tiles_to_string(tiles: List[str]) -> str:
+    # 牌配列を"123m293p21s"みたいな人間が読みやすい形にしている
+    # sortedの所はtile_sort_keyという基準で受け取ったtilesをソートしてる
+    # [t for t in ordered if t[1] == suit]とすることで、牌の種類(m,p,s,z)
+    # に分けて数字化してそれを["11344"]みたいなのを"11344m"みたいな文字列にして
+    # それをpartsに入れてそれをまた文字列化している
     ordered = sorted(tiles, key=tile_sort_key)
     parts = []
     for suit in SUITS:
