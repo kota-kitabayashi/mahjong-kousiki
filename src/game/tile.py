@@ -63,6 +63,9 @@ def tiles_to_counts(tiles: List[str]) -> List[int]:
 
 
 def counts_to_tiles(counts: List[int]) -> List[str]:
+    # 枚数配列を受け取り、index_to_tileを使って
+    # 文字列の牌を格納したリストを出力する
+    # [2, 1, 0, ...]みたいなのが["1m", "2m", "1m", ...]になる
     result: List[str] = []
     for i, c in enumerate(counts):
         result.extend([index_to_tile(i)] * c)
