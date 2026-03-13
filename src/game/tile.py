@@ -33,6 +33,8 @@ def tile_to_index(tile: str) -> int:
 
 
 def index_to_tile(index: int) -> str:
+    # 牌の番号である整数から牌の文字列にする
+    # 字牌以外は引数のindexから加工。字牌はそのままHONORSから取ってくる
     if index < 0 or index > 33:
         raise ValueError(index)
     if index < 27:
