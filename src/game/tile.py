@@ -53,6 +53,9 @@ def tile_sort_key(tile: str) -> int:
 
 
 def tiles_to_counts(tiles: List[str]) -> List[int]:
+    # どの牌が何枚なのかを数える関数
+    # ["1m", "2m", "1m"]みたいなのを一個一個tile_to_indexを用いて
+    # 整数に変換した上で枚数配列にして戻り値としている
     counts = [0] * 34
     for tile in tiles:
         counts[tile_to_index(tile)] += 1
