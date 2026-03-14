@@ -35,6 +35,7 @@ class PlayerState:
     menzen_before_win: bool = True
 
     def sort_hand(self) -> None:
+        # 手牌を整列する関数
         self.hand.sort(key=tile_sort_key)
 
     def hand_string(self) -> str:
