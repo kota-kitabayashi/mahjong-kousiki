@@ -14,6 +14,12 @@ from .tile import Meld, tile_sort_key, tiles_to_string
 
 @dataclass
 class PlayerState:
+    # ここは基本的な変数。席がどれか？スコアがどれかハンドがどれかなど
+    # discardsは河、meldsは鳴き面子格納リストriichi_declearedは立直宣言の有無
+    # riichi_acceptedは立直が正常に受理されたかどうか？ただし未活用とのこと
+    # ippatsu_validは一発が有効かどうか？これについても未活用
+    # furiten_tilesフリテン判定用の牌集合。これは重複なしの河だと思えばいい
+    # menzen_before_winアガリ前まで面前だったかどうかを保持したかったらしいが、未活用とのこと。
     seat: int
     score: int = 30000
     hand: List[str] = field(default_factory=list)
