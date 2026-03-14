@@ -1,5 +1,7 @@
+# これは将来クラス
 from __future__ import annotations
 
+# パスもモジュール。パスの扱いが楽になる
 from pathlib import Path
 
 
