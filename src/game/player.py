@@ -43,6 +43,7 @@ class PlayerState:
         return tiles_to_string(self.hand)
 
     def closed_tiles(self) -> List[str]:
+        # 手牌を返す関数
         return list(self.hand)
 
     def is_menzen(self) -> bool:
