@@ -88,6 +88,8 @@ def tiles_to_string(tiles: List[str]) -> str:
 
 
 def is_terminal_or_honor(index: int) -> bool:
+    # 19字牌かどうかを判定する。19字牌ならTrue
+    # 字牌かを判定、そのあとに19かを判定
     if index >= 27:
         return True
     n = index % 9 + 1
