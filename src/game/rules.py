@@ -1,5 +1,8 @@
+# これは将来クラス。ここにも必要なん？w
 from __future__ import annotations
 
+# 全て定数。満貫以上の点数や立直棒、本場、ウマなどの定義がなされている
+# なんで['東', '南']がまた定義されてるかしらん
 RIICHI_STICK = 1000
 HONBA_VALUE = 300
 START_SCORE = 30000
