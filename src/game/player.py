@@ -39,6 +39,7 @@ class PlayerState:
         self.hand.sort(key=tile_sort_key)
 
     def hand_string(self) -> str:
+        # 手牌を表示用の文字列に変換する関数
         return tiles_to_string(self.hand)
 
     def closed_tiles(self) -> List[str]:
