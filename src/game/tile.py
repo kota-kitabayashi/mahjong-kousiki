@@ -102,6 +102,8 @@ def is_honor(index: int) -> bool:
 
 
 def same_suit(a: int, b: int) -> bool:
+    # 与えられた2つの牌が数牌で同じ牌かどうか
+    # 2m,2mみたいな感じ
     return a < 27 and b < 27 and a // 9 == b // 9
 
 
