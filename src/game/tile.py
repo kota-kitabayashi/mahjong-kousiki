@@ -97,6 +97,7 @@ def is_terminal_or_honor(index: int) -> bool:
 
 
 def is_honor(index: int) -> bool:
+    # 字牌かどうかを判定する関数
     return index >= 27
 
 
