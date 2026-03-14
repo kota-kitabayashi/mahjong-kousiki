@@ -109,8 +109,10 @@ def same_suit(a: int, b: int) -> bool:
 
 @dataclass(frozen=True)
 class Meld:
-    kind: str
-    tiles: List[str]
-    opened: bool
-    called_tile: str | None = None
-    from_player: int | None = None
+    # 面子情報を保持するクラス
+    # called_tile: str | None = Noneは最初はNoneでそのあと入るのはstrかNoneということ
+    kind: str   # 面子の種類
+    tiles: List[str]    # 構成する牌すべて
+    opened: bool        # 副露かどうか
+    called_tile: str | None = None  # 鳴いた牌
+    from_player: int | None = None  # 誰から鳴いたか
