@@ -1,8 +1,14 @@
+# 将来クラス
 from __future__ import annotations
 
+# dataclassesはクラスを作りやすくする。fieldは可変オブジェクトを可能にしている
+# 例えば、list = []これはクラスを作った時にすべてのインスタンスで同じリストが共有されてしまう
+# しかしlist = field(default_factory=list)とすることによって同じリストを共有しない
 from dataclasses import dataclass, field
+# リストを使いやすくする
 from typing import List
 
+# ここは牌クラスの面子クラス、牌をソートするために整数にする関数、牌を人間が読みやすい形にする関数
 from .tile import Meld, tile_sort_key, tiles_to_string
 
 
