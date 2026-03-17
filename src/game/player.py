@@ -47,6 +47,7 @@ class PlayerState:
         return list(self.hand)
 
     def is_menzen(self) -> bool:
+        # 面前かどうかを返す関数
         return all(not m.opened for m in self.melds)
 
     def reset_round_state(self) -> None:
