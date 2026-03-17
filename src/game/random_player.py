@@ -1,5 +1,7 @@
+# これは将来クラス
 from __future__ import annotations
 
+# ランダムとリスト扱いやすくするためのやつ
 import random
 from typing import List
 
