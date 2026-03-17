@@ -51,6 +51,7 @@ class PlayerState:
         return all(not m.opened for m in self.melds)
 
     def reset_round_state(self) -> None:
+        # 局開始時にプレイヤーの状態を初期化する
         self.hand.clear()
         self.discards.clear()
         self.melds.clear()
