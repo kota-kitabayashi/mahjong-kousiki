@@ -12,14 +12,14 @@ from typing import List
 from .tile import Meld, tile_sort_key, tiles_to_string
 
 
+# ここは基本的な変数。席がどれか？スコアがどれかハンドがどれかなど
+# discardsは河、meldsは鳴き面子格納リストriichi_declearedは立直宣言の有無
+# riichi_acceptedは立直が正常に受理されたかどうか？ただし未活用とのこと
+# ippatsu_validは一発が有効かどうか？これについても未活用
+# furiten_tilesフリテン判定用の牌集合。これは重複なしの河だと思えばいい
+# menzen_before_winアガリ前まで面前だったかどうかを保持したかったらしいが、未活用とのこと。
 @dataclass
 class PlayerState:
-    # ここは基本的な変数。席がどれか？スコアがどれかハンドがどれかなど
-    # discardsは河、meldsは鳴き面子格納リストriichi_declearedは立直宣言の有無
-    # riichi_acceptedは立直が正常に受理されたかどうか？ただし未活用とのこと
-    # ippatsu_validは一発が有効かどうか？これについても未活用
-    # furiten_tilesフリテン判定用の牌集合。これは重複なしの河だと思えばいい
-    # menzen_before_winアガリ前まで面前だったかどうかを保持したかったらしいが、未活用とのこと。
     seat: int
     score: int = 30000
     hand: List[str] = field(default_factory=list)
@@ -34,24 +34,24 @@ class PlayerState:
     first_turn: bool = True
     menzen_before_win: bool = True
 
+    # 手牌を整列する関数
     def sort_hand(self) -> None:
-        # 手牌を整列する関数
         self.hand.sort(key=tile_sort_key)
 
+    # 手牌を表示用の文字列に変換する関数
     def hand_string(self) -> str:
-        # 手牌を表示用の文字列に変換する関数
         return tiles_to_string(self.hand)
 
+    # 手牌を返す関数
     def closed_tiles(self) -> List[str]:
-        # 手牌を返す関数
         return list(self.hand)
 
+    # 面前かどうかを返す関数
     def is_menzen(self) -> bool:
-        # 面前かどうかを返す関数
         return all(not m.opened for m in self.melds)
 
+    # 局開始時にプレイヤーの状態を初期化する
     def reset_round_state(self) -> None:
-        # 局開始時にプレイヤーの状態を初期化する
         self.hand.clear()
         self.discards.clear()
         self.melds.clear()
