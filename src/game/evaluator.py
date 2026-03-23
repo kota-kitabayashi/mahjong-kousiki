@@ -173,20 +173,25 @@ def yakuhai_han(index: int, seat: int, round_wind: int) -> int:
     return han
 
 
+# 待ち方を判定する関数
 def wait_type(decomp: List[Tuple[str, int]], win_idx: int, pair: int) -> str:
+    # 雀頭にアガリ牌が含まれる時は単騎待ち
     if pair == win_idx:
         return 'tanki'
+    
+    # decompから面子を取ってきて判定
     for kind, idx in decomp:
+        # 面子の種類が順子でアガリ牌がその順子にあるか？
         if kind == 'sequence' and idx <= win_idx <= idx + 2:
-            pos = win_idx - idx
-            if pos == 1:
+            pos = win_idx - idx             # アガリ牌と順子の最初の牌の差
+            if pos == 1:                    # 1になる時は真ん中なのでカンチャン
                 return 'kanchan'
-            if pos == 0 and idx % 9 == 6:
+            if pos == 0 and idx % 9 == 6:   # 789のペンチャンはここで判定
                 return 'penchan'
-            if pos == 2 and idx % 9 == 0:
+            if pos == 2 and idx % 9 == 0:   # 123のペンチャンはここで判定
                 return 'penchan'
-            return 'ryanmen'
-    return 'shanpon'
+            return 'ryanmen'                # その他は両面
+    return 'shanpon'                        # 順子でない場合はシャンポン
 
 
 def point_table_ron(han: int, fu: int, dealer: bool) -> int:
