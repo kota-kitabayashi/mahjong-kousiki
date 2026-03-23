@@ -65,25 +65,42 @@ class HandScore:
     tsumo_parent_pay: int           # ツモの時、親が払う点数
 
 
+# 雀頭を除いた残りの牌を順子や刻子へ分解する関数
+# counts = 残り枚数
+# path = 現在までの分解結果
+# out = 完成した分解候補の格納先
 def _remove_melds(counts: List[int], path: List[Tuple[str, int]], out: List[List[Tuple[str, int]]]) -> None:
+    # counts = [0] * 34これに対して枚数を付与したのがcountsに入っているイメージ。
+    # countsの中で一番枚数の多いものをiに格納。なければ-1を格納。next(イテレータ)は
+    # 今回next(ジェネレータ, -1)の形で作られており、ジェネレータではcountsの値が0以上のものを抽出して
+    # インデックスをiに格納する。
     i = next((j for j, c in enumerate(counts) if c > 0), -1)
+    
+    # countsが空
+    # pathからコピーしてきてoutに格納し、終わる
     if i == -1:
         out.append(path.copy())
         return
+    
+    # iの牌数が3以上の場合
+    # 刻子をpathに格納していく
     if counts[i] >= 3:
-        counts[i] -= 3
-        path.append(('triplet', i))
-        _remove_melds(counts, path, out)
-        path.pop()
-        counts[i] += 3
+        counts[i] -= 3                      # 3以上の牌のcountsを-3する
+        path.append(('triplet', i))         # pathにtriplet(刻子)として格納
+        _remove_melds(counts, path, out)    # 再帰
+        path.pop()                          # pathをそのままは良くないのでpop
+        counts[i] += 3                      # countsも回復
+        
+    # iの数が数牌で、i+1、i+2の牌がある場合
+    # 順子をpathに格納していく
     if i < 27 and i % 9 <= 6 and counts[i + 1] > 0 and counts[i + 2] > 0:
-        counts[i] -= 1
+        counts[i] -= 1                      # 順子に使う牌たちをcountsから消す
         counts[i + 1] -= 1
         counts[i + 2] -= 1
-        path.append(('sequence', i))
-        _remove_melds(counts, path, out)
+        path.append(('sequence', i))        # pathにsequence(順子)として格納        ※シークエンスは、「連続」、「一連のもの」という意味らしい。スケートのジャンプシークエンスはジャンプを続けてするから、シークエンスってつくんだと初めて知った。ウケる
+        _remove_melds(counts, path, out)    # 再帰
         path.pop()
-        counts[i] += 1
+        counts[i] += 1                      #countsに復活させる
         counts[i + 1] += 1
         counts[i + 2] += 1
 
