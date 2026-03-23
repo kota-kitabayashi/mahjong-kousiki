@@ -160,13 +160,15 @@ def is_ryuuiisou(counts: List[int]) -> bool:
     return all(c == 0 or i in allowed for i, c in enumerate(counts))
 
 
+# 役牌の翻数を返す関数
+# index=刻子の牌、seat=自風、round_wind=場風
 def yakuhai_han(index: int, seat: int, round_wind: int) -> int:
     han = 0
-    if index in (31, 32, 33):
+    if index in (31, 32, 33):       # 三元牌
         han += 1
-    if index == 27 + seat:
+    if index == 27 + seat:          # 自風の時
         han += 1
-    if index == 27 + round_wind:
+    if index == 27 + round_wind:    # 場風の時
         han += 1
     return han
 
