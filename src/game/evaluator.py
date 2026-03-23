@@ -32,7 +32,7 @@ from .rules import (
 )
 
 
-アガリ判定が起こった時の状況を渡すクラスWinContextクラス
+# アガリ判定が起こった時の状況を渡すクラスWinContextクラス
 @dataclass
 class WinContext:
     seat: int                   # 自風の位置
