@@ -71,9 +71,8 @@ class HandScore:
 # out = 完成した分解候補の格納先
 def _remove_melds(counts: List[int], path: List[Tuple[str, int]], out: List[List[Tuple[str, int]]]) -> None:
     # counts = [0] * 34これに対して枚数を付与したのがcountsに入っているイメージ。
-    # countsの中で一番枚数の多いものをiに格納。なければ-1を格納。next(イテレータ)は
-    # 今回next(ジェネレータ, -1)の形で作られており、ジェネレータではcountsの値が0以上のものを抽出して
-    # インデックスをiに格納する。
+    # countsの中でインデックス順に見て最初に残っている牌のインデックスをiに格納。なければ-1を格納。next(イテレータ)は
+    # 今回next(ジェネレータ, -1)の形で作られており、ジェネレータではcountsの値が0以上のものを抽出してインデックスをiに格納する。
     i = next((j for j, c in enumerate(counts) if c > 0), -1)
     
     # countsが空
