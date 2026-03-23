@@ -141,8 +141,9 @@ def standard_decompositions(counts: List[int]) -> List[List[Tuple[str, int]]]:
     return [list(x) for x in _standard_decompositions(tuple(counts))]   # 説明通りリスト化し出力
 
 
+# 七対子が成立しているか判定する関数
 def is_chiitoitsu(counts: List[int]) -> bool:
-    return len([c for c in counts if c == 2]) == 7
+    return len([c for c in counts if c == 2]) == 7      # countsの中に2枚の牌が7ペアあるか確認している
 
 
 def is_kokushi(counts: List[int]) -> bool:
