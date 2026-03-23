@@ -52,16 +52,17 @@ class WinContext:
     winning_tile: str           # あがった牌
 
 
+# アガリ時の翻、符、役、点数等を渡すためのクラス
 @dataclass
 class HandScore:
-    han: int
-    fu: int
-    yaku: List[Tuple[str, int]]
-    yakuman: int
-    total_points: int
-    ron_points: int
-    tsumo_child_pay: int
-    tsumo_parent_pay: int
+    han: int                        # 何翻か 
+    fu: int                         # 何符か
+    yaku: List[Tuple[str, int]]     # 役の中身。[(立直, 1), (ホンイツ, 3)]みたいに、(役名, 翻数)のタプルがまとめられている
+    yakuman: int                    # 何倍役満か？役満でない場合は0
+    total_points: int               # 全て合わせた点数
+    ron_points: int                 # ロンの時の点数
+    tsumo_child_pay: int            # ツモの時、子供が払う点数
+    tsumo_parent_pay: int           # ツモの時、親が払う点数
 
 
 def _remove_melds(counts: List[int], path: List[Tuple[str, int]], out: List[List[Tuple[str, int]]]) -> None:
