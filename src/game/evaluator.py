@@ -1,10 +1,21 @@
+# これは将来クラス
 from __future__ import annotations
 
+# クラスを使いやすくするデータクラス
 from dataclasses import dataclass
+# 計算結果を覚えておき、再計算せずにすぐ応答できる機能を関数に与える
 from functools import lru_cache
+
+# 型を詳細に書きたいときのtyping。
+# list[str] = ["waa", "uoo"]みたいなことね
 from typing import Dict, Iterable, List, Tuple
 
+# 牌py(意味深)からMeld(面子クラス)、整数を牌に治す(27=白みたいな)index_to_tile
+# 19字牌かを判定するis_terminal_or_honor、牌から整数に治す(白=27)tile_to_index
+# 牌の数を数える
+# is_honorはなんなんかよくわからない。使いたかったけどなぜか使ってないね
 from .tile import Meld, index_to_tile, is_honor, is_terminal_or_honor, tile_to_index, tiles_to_counts
+# ルールからいろんな定数を持ってくる
 from .rules import (
     BAIMAN_CHILD,
     BAIMAN_PARENT,
