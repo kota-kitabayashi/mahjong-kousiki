@@ -152,8 +152,11 @@ def is_kokushi(counts: List[int]) -> bool:
     return all(counts[i] >= 1 for i in req) and sum(counts) == 14 and sum(counts[i] == 2 for i in req) == 1
 
 
+# 緑一色が成立しているか判定する関数
 def is_ryuuiisou(counts: List[int]) -> bool:
     allowed = {19, 20, 21, 23, 25, 32}
+    # 牌が0ならスルー or iがallowedの牌であるかについて確認している
+    # countsに格納されている牌において牌数0でない時にその牌がallowedの牌であるかということ
     return all(c == 0 or i in allowed for i, c in enumerate(counts))
 
 
