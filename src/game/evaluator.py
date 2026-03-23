@@ -146,8 +146,10 @@ def is_chiitoitsu(counts: List[int]) -> bool:
     return len([c for c in counts if c == 2]) == 7      # countsの中に2枚の牌が7ペアあるか確認している
 
 
+# 国士無双が成立しているか判定する関数
 def is_kokushi(counts: List[int]) -> bool:
     req = [0, 8, 9, 17, 18, 26, 27, 28, 29, 30, 31, 32, 33]
+    # reqがすべて一枚以上あるか＆countsが14枚であるか＆reqの中の牌で2枚ある牌が1種類だけあるかを確認している
     return all(counts[i] >= 1 for i in req) and sum(counts) == 14 and sum(counts[i] == 2 for i in req) == 1
 
 
