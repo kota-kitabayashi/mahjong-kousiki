@@ -32,23 +32,24 @@ from .rules import (
 )
 
 
+アガリ判定が起こった時の状況を渡すクラスWinContextクラス
 @dataclass
 class WinContext:
-    seat: int
-    round_wind: int
-    is_tsumo: bool
-    is_riichi: bool
-    is_double_riichi: bool
-    is_ippatsu: bool
-    is_rinshan: bool
-    is_chankan: bool
-    is_haitei: bool
-    is_houtei: bool
-    is_tenhou: bool
-    is_chiihou: bool
-    open_melds: List[Meld]
-    closed_melds: List[Meld]
-    winning_tile: str
+    seat: int                   # 自風の位置
+    round_wind: int             # 東風か南風か
+    is_tsumo: bool              # ツモであるか
+    is_riichi: bool             # 立直しているか
+    is_double_riichi: bool      # ダブル立直しているか
+    is_ippatsu: bool            # いっぱつであるか？これはいらんやろ
+    is_rinshan: bool            # 嶺上であるか
+    is_chankan: bool            # 槍槓であるか
+    is_haitei: bool             # 海底撈月であるか
+    is_houtei: bool             # ホーテイロンであるかどうか
+    is_tenhou: bool             # 天和であるか
+    is_chiihou: bool            # 地和であるか
+    open_melds: List[Meld]      # 鳴き面子
+    closed_melds: List[Meld]    # 手牌。暗槓の面子
+    winning_tile: str           # あがった牌
 
 
 @dataclass
