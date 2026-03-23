@@ -105,22 +105,40 @@ def _remove_melds(counts: List[int], path: List[Tuple[str, int]], out: List[List
         counts[i + 2] += 1
 
 
+# 通常手の全ての分解形を列挙する関数
+# [0,3,1,0,0, ...]みたいな牌の配列を分解形をすべて列挙したタプルをまとめたタプルを出力する。キャッシュ付き
+# ＊＊＊＊＊　なぜ「リスト→タプル→リスト」という流れで入力したり、出力したりされているのか？　＊＊＊＊＊
+# 後に出てくるstandard_decompositionsではcounts_key(counts)をリストにして、
+# なぜこっちに来るときにタプルにしているかというと簡潔に言えばキャッシュを使うからである。
+# lru_cacheは引数がハッシュ可能でないと用いることができない。リストは可変なのでハッシュ不可
+# タプルは不変なのでハッシュ可能である。よってハッシュ可能なタプルで渡しているのだ。ちなみに戻り値に関しては
+# lru_cacheが拒否するわけではないが、可変であるリストを使ってキャッシュすると外側からそのリストを変えられた時に
+# キャッシュそのものが壊れる可能性があるため、不変なタプルを用いている。
+# じゃあ！！すべてタプルでいいじゃねええか！という疑問が生まれてくるが、counts[i] += 2とかができなくなるので
+# この関数の内部でも他の所でもcountsみたいなものはリストで扱いたいのである。
+# よって_standard_decompositionsに入れるときだけ　リスト→タプル→リスト　という不自然な流れが生まれるのだ
 @lru_cache(maxsize=None)
 def _standard_decompositions(counts_key: Tuple[int, ...]) -> Tuple[Tuple[Tuple[str, int], ...], ...]:
-    counts = list(counts_key)
-    result: List[List[Tuple[str, int]]] = []
+    counts = list(counts_key)                               # counts_keyをリスト化
+    result: List[List[Tuple[str, int]]] = []                # resultをあらかじめ用意
+    
+    # この関数では雀頭を抜いてから_remove_meldsしている
+    # よってすべての牌において2つであればそれを一旦雀頭としておき、その他の部分で_remove_meldsを実施する
     for i in range(34):
         if counts[i] >= 2:
-            counts[i] -= 2
-            partial: List[List[Tuple[str, int]]] = []
-            _remove_melds(counts, [('pair', i)], partial)
+            counts[i] -= 2                                  # countsで指定の牌を2個減らす
+            partial: List[List[Tuple[str, int]]] = []       # partialを用意し、それをresultに繋げる
+            _remove_melds(counts, [('pair', i)], partial)   # pathにpair(雀頭)を追加した状態でremove_meldsする
             result.extend(partial)
-            counts[i] += 2
-    return tuple(tuple(x) for x in result)
+            counts[i] += 2                                  # countsを元に戻す
+    return tuple(tuple(x) for x in result)                  # タプルにして出力
 
 
+# 通常手の全ての分解形を列挙する関数
+# _standard_decompositionsはキャッシュを使用したり、そのためにタプルにしたりと外部向けではないため
+# 外部窓口用のこの関数を設置している
 def standard_decompositions(counts: List[int]) -> List[List[Tuple[str, int]]]:
-    return [list(x) for x in _standard_decompositions(tuple(counts))]
+    return [list(x) for x in _standard_decompositions(tuple(counts))]   # 説明通りリスト化し出力
 
 
 def is_chiitoitsu(counts: List[int]) -> bool:
