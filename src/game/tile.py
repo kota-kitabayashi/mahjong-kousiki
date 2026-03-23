@@ -16,9 +16,9 @@ WIND_NAMES = ['東', '南', '西', '北']
 ROUND_NAMES = ['東', '南']
 
 
+# 牌を文字列から整数にする関数
+# 1mであればnumは1suitはmになる。
 def tile_to_index(tile: str) -> int:
-    # 牌を文字列から整数にする関数
-    # 1mであればnumは1suitはmになる。
     num = int(tile[0])
     suit = tile[1]
     if suit == 'm':
@@ -32,9 +32,9 @@ def tile_to_index(tile: str) -> int:
     raise ValueError(f'invalid tile: {tile}')
 
 
+# 牌の番号である整数から牌の文字列にする
+# 字牌以外は引数のindexから加工。字牌はそのままHONORSから取ってくる
 def index_to_tile(index: int) -> str:
-    # 牌の番号である整数から牌の文字列にする
-    # 字牌以外は引数のindexから加工。字牌はそのままHONORSから取ってくる
     if index < 0 or index > 33:
         raise ValueError(index)
     if index < 27:
@@ -46,38 +46,38 @@ def index_to_tile(index: int) -> str:
     return HONORS[index]
 
 
+# 牌を並び替えるために作ってるらしい
+# そのまま使えよって思う
 def tile_sort_key(tile: str) -> int:
-    # 牌を並び替えるために作ってるらしい
-    # そのまま使えよって思う
     return tile_to_index(tile)
 
 
+# どの牌が何枚なのかを数える関数
+# ["1m", "2m", "1m"]みたいなのを一個一個tile_to_indexを用いて
+# 整数に変換した上で枚数配列にして戻り値としている
 def tiles_to_counts(tiles: List[str]) -> List[int]:
-    # どの牌が何枚なのかを数える関数
-    # ["1m", "2m", "1m"]みたいなのを一個一個tile_to_indexを用いて
-    # 整数に変換した上で枚数配列にして戻り値としている
     counts = [0] * 34
     for tile in tiles:
         counts[tile_to_index(tile)] += 1
     return counts
 
 
+# 枚数配列を受け取り、index_to_tileを使って
+# 文字列の牌を格納したリストを出力する
+# [2, 1, 0, ...]みたいなのが["1m", "2m", "1m", ...]になる
 def counts_to_tiles(counts: List[int]) -> List[str]:
-    # 枚数配列を受け取り、index_to_tileを使って
-    # 文字列の牌を格納したリストを出力する
-    # [2, 1, 0, ...]みたいなのが["1m", "2m", "1m", ...]になる
     result: List[str] = []
     for i, c in enumerate(counts):
         result.extend([index_to_tile(i)] * c)
     return result
 
 
+# 牌配列を"123m293p21s"みたいな人間が読みやすい形にしている
+# sortedの所はtile_sort_keyという基準で受け取ったtilesをソートしてる
+# [t for t in ordered if t[1] == suit]とすることで、牌の種類(m,p,s,z)
+# に分けて数字化してそれを["11344"]みたいなのを"11344m"みたいな文字列にして
+# それをpartsに入れてそれをまた文字列化している
 def tiles_to_string(tiles: List[str]) -> str:
-    # 牌配列を"123m293p21s"みたいな人間が読みやすい形にしている
-    # sortedの所はtile_sort_keyという基準で受け取ったtilesをソートしてる
-    # [t for t in ordered if t[1] == suit]とすることで、牌の種類(m,p,s,z)
-    # に分けて数字化してそれを["11344"]みたいなのを"11344m"みたいな文字列にして
-    # それをpartsに入れてそれをまた文字列化している
     ordered = sorted(tiles, key=tile_sort_key)
     parts = []
     for suit in SUITS:
@@ -87,32 +87,32 @@ def tiles_to_string(tiles: List[str]) -> str:
     return ''.join(parts)
 
 
+# 19字牌かどうかを判定する。19字牌ならTrue
+# 字牌かを判定、そのあとに19かを判定
 def is_terminal_or_honor(index: int) -> bool:
-    # 19字牌かどうかを判定する。19字牌ならTrue
-    # 字牌かを判定、そのあとに19かを判定
     if index >= 27:
         return True
     n = index % 9 + 1
     return n in (1, 9)
 
 
+# 字牌かどうかを判定する関数
 def is_honor(index: int) -> bool:
-    # 字牌かどうかを判定する関数
     return index >= 27
 
 
+# 与えられた2つの牌が数牌で同じ牌かどうか
+# 2m,2mみたいな感じ
 def same_suit(a: int, b: int) -> bool:
-    # 与えられた2つの牌が数牌で同じ牌かどうか
-    # 2m,2mみたいな感じ
     return a < 27 and b < 27 and a // 9 == b // 9
 
 
+# 面子情報を保持するクラス
+# called_tile: str | None = Noneは最初はNoneでそのあと入るのはstrかNoneということ
 @dataclass(frozen=True)
 class Meld:
-    # 面子情報を保持するクラス
-    # called_tile: str | None = Noneは最初はNoneでそのあと入るのはstrかNoneということ
-    kind: str   # 面子の種類
-    tiles: List[str]    # 構成する牌すべて
-    opened: bool        # 副露かどうか
+    kind: str                       # 面子の種類
+    tiles: List[str]                # 構成する牌すべて
+    opened: bool                    # 副露かどうか
     called_tile: str | None = None  # 鳴いた牌
     from_player: int | None = None  # 誰から鳴いたか
