@@ -450,46 +450,64 @@ def eval_standard(counts: List[int], decomp: List[Tuple[str, int]], ctx: WinCont
     return han, fu, yaku_names, 0                   # 出力
 
 
+# アガリ可能かを判定し、可能なら最も高い点数の形を返す関数
 def evaluate_hand(closed_tiles: List[str], ctx: WinContext) -> HandScore | None:
+    # 面前部分の牌をリスト化
     all_counts = tiles_to_counts(closed_tiles)
-    for meld in ctx.open_melds + ctx.closed_melds:
+    for meld in ctx.open_melds + ctx.closed_melds:  # all_countsに鳴いた牌も格納
         for t in meld.tiles:
             all_counts[tile_to_index(t)] += 1
     best: HandScore | None = None
 
+    # 国士かどうかの判定
     if is_kokushi(all_counts):
-        ron = YAKUMAN_BASE_PARENT if ctx.seat == 0 else YAKUMAN_BASE_CHILD
-        total, c, p = point_table_tsumo(13, 0, ctx.seat == 0)
-        return HandScore(13, 0, [('国士無双', 13)], 1, total, ron, c, p)
+        ron = YAKUMAN_BASE_PARENT if ctx.seat == 0 else YAKUMAN_BASE_CHILD  # 親なら親の点数、子なら子
+        total, c, p = point_table_tsumo(13, 0, ctx.seat == 0)               # point_table_tsumoを使ってツモ点数を出す
+        return HandScore(13, 0, [('国士無双', 13)], 1, total, ron, c, p)    # 翻, 符, [役名, 翻数], 役満数, 総合点, ロンの時の点数、ツモの時の子供の支払い、親の支払い
 
+    # 七対子かどうか判定
+    # 七対子で面前かどうかを確認
     if is_chiitoitsu(all_counts) and len(ctx.open_melds) == 0:
         yaku = {'七対子': 2}
-        if ctx.is_tsumo:
+        if ctx.is_tsumo:                # 面前チェック済みのため、ツモはそのままツモ
             yaku['門前清自摸和'] = 1
-        if ctx.is_double_riichi:
+        if ctx.is_double_riichi:        # ダブル立直しているか
             yaku['ダブル立直'] = 2
-        elif ctx.is_riichi:
+        elif ctx.is_riichi:             # リーチしているか
             yaku['立直'] = 1
-        han = sum(yaku.values())
+        han = sum(yaku.values())        # 翻数を合計
         if han > 0:
-            ron = point_table_ron(han, 25, ctx.seat == 0)
+            ron = point_table_ron(han, 25, ctx.seat == 0)                       # 点数を25符で計算
             total, c, p = point_table_tsumo(han, 25, ctx.seat == 0)
-            best = HandScore(han, 25, list(yaku.items()), 0, total, ron, c, p)
+            best = HandScore(han, 25, list(yaku.items()), 0, total, ron, c, p)  # 翻, 符, [役名, 翻数], 役満数, 総合点, ロンの時の点数、ツモの時の子供の支払い、親の支払い
 
+    # 通常の面子手に対する処理
+    # all_countsから分解形を作成し、分解形に対して処理をする
     for decomp in standard_decompositions(all_counts):
+        # 翻数などを出す
         han, fu, yaku, yakuman = eval_standard(tiles_to_counts(closed_tiles), decomp, ctx)
+        
+        # 役満があれば、役満用の点数を出す
         if yakuman:
             ron = (YAKUMAN_BASE_PARENT if ctx.seat == 0 else YAKUMAN_BASE_CHILD) * yakuman
             total, c, p = point_table_tsumo(13 * yakuman, 0, ctx.seat == 0)
             cand = HandScore(13 * yakuman, 0, yaku, yakuman, total, ron, c, p)
+        
+        # 役があれば、翻と符について点数計算
         elif han > 0:
             ron = point_table_ron(han, fu, ctx.seat == 0)
             total, c, p = point_table_tsumo(han, fu, ctx.seat == 0)
             cand = HandScore(han, fu, yaku, 0, total, ron, c, p)
+            
+        # 何もないなら、無視
         else:
             continue
+        
+        # ベストスコアがまだな or ベストスコアより、算出したスコアの方が高い
         if best is None or (cand.ron_points, cand.han, cand.fu) > (best.ron_points, best.han, best.fu):
-            best = cand
+            best = cand     # ベストスコア更新
+    
+    # 最終的なベストスコアを出力
     return best
 
 
