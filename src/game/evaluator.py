@@ -511,14 +511,18 @@ def evaluate_hand(closed_tiles: List[str], ctx: WinContext) -> HandScore | None:
     return best
 
 
+# 聴牌時の待ち牌一覧を返す
 def winning_tiles_for_tenpai(closed_tiles: List[str], open_melds: List[Meld], closed_melds: List[Meld], seat: int, round_wind: int) -> List[str]:
+    # 手牌からcountsを作成
     counts = tiles_to_counts(closed_tiles)
     result: List[str] = []
+    
+    # 34枚すべてに対して、その牌を一枚足したときの手牌があがっているかどうかを判定する
     for i in range(34):
-        if counts[i] >= 4:
+        if counts[i] >= 4:                          # 4枚使ってるときは待ちにならん
             continue
-        trial = closed_tiles + [index_to_tile(i)]
-        ctx = WinContext(
+        trial = closed_tiles + [index_to_tile(i)]   # 1枚増やしたときの牌リストを作成
+        ctx = WinContext(                           # WinContextを仮置き、もちろんindex_to_tile(i)がアガリ牌
             seat=seat,
             round_wind=round_wind,
             is_tsumo=True,
@@ -535,6 +539,8 @@ def winning_tiles_for_tenpai(closed_tiles: List[str], open_melds: List[Meld], cl
             closed_melds=closed_melds,
             winning_tile=index_to_tile(i),
         )
-        if evaluate_hand(trial, ctx) is not None:
-            result.append(index_to_tile(i))
+        if evaluate_hand(trial, ctx) is not None:   # あがれる時には
+            result.append(index_to_tile(i))         # その牌をリザルトに追加
+    
+    # 最終的なリザルトを返す
     return result
