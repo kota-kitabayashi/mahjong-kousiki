@@ -12,3 +12,4 @@
 - [] evaluator.pyのeval_standardについて、四暗刻の判定が四暗刻単騎の判定になってしまっているため修正する。三暗刻と同じく、暗刻なのか、明刻なのかの判定を追加すべきである。
 - [] evaluator.pyのeval_standardで役牌ではなく、役牌名を役の名前にしたい
 - [] evaluator.pyのeval_standardがあまりにも関数をうまく使えていない。同じ処理については関数化し、見やすく、整えるべき
+- [] evaluator.pyのevaluate_handについて七対子の複合役があまりに少ないので追加し是正する
