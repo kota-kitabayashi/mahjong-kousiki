@@ -194,20 +194,30 @@ def wait_type(decomp: List[Tuple[str, int]], win_idx: int, pair: int) -> str:
     return 'shanpon'                        # 順子でない場合はシャンポン
 
 
+# ロンの点数を計算する
 def point_table_ron(han: int, fu: int, dealer: bool) -> int:
+    # 4倍満の場合
     if han >= 13:
         return YONBAIMAN_PARENT if dealer else YONBAIMAN_CHILD
+    
+    # 3倍満の場合
     if han >= 11:
         return SANBAIMAN_PARENT if dealer else SANBAIMAN_CHILD
+    
+    # 倍満の場合
     if han >= 8:
         return BAIMAN_PARENT if dealer else BAIMAN_CHILD
+    
+    # 跳満の場合
     if han >= 6:
         return HANEMAN_PARENT if dealer else HANEMAN_CHILD
+    
+    # 基本点baseを計算し、親なら6倍、子なら4倍した数が満貫に到達していれば満貫へまとめる。その他は100点単位で切り上げ、点数とする
     base = fu * (2 ** (han + 2))
     if han >= 5 or ((dealer and base * 6 >= 12000) or ((not dealer) and base * 4 >= 8000)):
         return MANGAN_PARENT if dealer else MANGAN_CHILD
     mult = 6 if dealer else 4
-    return ((base * mult + 99) // 100) * 100
+    return ((base * mult + 99) // 100) * 100        # ここで+99とすることで切り上げ処理をしている
 
 
 def point_table_tsumo(han: int, fu: int, dealer: bool) -> Tuple[int, int, int]:
