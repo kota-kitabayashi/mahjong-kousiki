@@ -301,121 +301,153 @@ def calculate_fu(decomp: List[Tuple[str, int]], ctx: WinContext, yaku_names: Ite
     return ((fu + 9) // 10) * 10                            # 符を10単位で切りあげて出力
 
 
+# 面子手用。一つの分解形について、翻・符・役名、役満数を計算し、返す
 def eval_standard(counts: List[int], decomp: List[Tuple[str, int]], ctx: WinContext) -> Tuple[int, int, List[Tuple[str, int]], int]:
-    pair = next(idx for kind, idx in decomp if kind == 'pair')
-    triplets = [idx for kind, idx in decomp if kind == 'triplet']
-    sequences = [idx for kind, idx in decomp if kind == 'sequence']
-    all_counts = counts[:]
+    # まずは役や翻を出すための準備をする
+    pair = next(idx for kind, idx in decomp if kind == 'pair')      # 雀頭は1つしかないためnext()を使う
+    triplets = [idx for kind, idx in decomp if kind == 'triplet']   # 刻子を格納したリスト
+    sequences = [idx for kind, idx in decomp if kind == 'sequence'] # 順子を格納したリスト
+    
+    all_counts = counts[:]  # countsをコピー
+    
+    # 手牌と鳴き面子を合わせる作業。
+    # まずall_countsにすべての牌を格納するため鳴き面子の牌を追加で格納
     for meld in ctx.open_melds + ctx.closed_melds:
         for t in meld.tiles:
             all_counts[tile_to_index(t)] += 1
+            
+    # 手牌と鳴き面子を合わせたtriplet_like, sequence_likeを作成。槓子をmeldから取り出し、quadsを作成
     triplet_like = triplets + [tile_to_index(m.tiles[0]) for m in ctx.open_melds + ctx.closed_melds if m.kind in ('triplet', 'ankan', 'minkan', 'kakan')]
     sequence_like = sequences + [tile_to_index(m.tiles[0]) for m in ctx.open_melds if m.kind == 'sequence']
     quads = [m for m in ctx.open_melds + ctx.closed_melds if m.kind in ('ankan', 'minkan', 'kakan')]
 
+    # 役満を判定する。
+    # なぜすべての役満について関数を作らないのかは不明。優先度は低いが、作るべき
     yakuman_names: List[str] = []
-    if is_ryuuiisou(all_counts):
+    if is_ryuuiisou(all_counts):                                        # 緑一色は関数を使って判定
         yakuman_names.append('緑一色')
-    if sum(1 for x in triplet_like if x in (31, 32, 33)) == 3:
+    if sum(1 for x in triplet_like if x in (31, 32, 33)) == 3:          # 鳴いていても良いのでtriplet_likeに白發中があれば
         yakuman_names.append('大三元')
-    wind_trip = sum(1 for x in triplet_like if x in (27, 28, 29, 30))
-    if wind_trip == 4:
+    wind_trip = sum(1 for x in triplet_like if x in (27, 28, 29, 30))   # 大四喜と小四喜のためのwind_tripを作成
+    if wind_trip == 4:                                                  # wind_tripが4つであれば大四喜
         yakuman_names.append('大四喜')
-    elif wind_trip == 3 and pair in (27, 28, 29, 30):
+    elif wind_trip == 3 and pair in (27, 28, 29, 30):                   # 3つとpairであれば小四喜、elifを使う。
         yakuman_names.append('小四喜')
-    if len(quads) == 4:
+    if len(quads) == 4:                                                 # 4つ槓があれば4槓子
         yakuman_names.append('四槓子')
-    if len(triplets) == 4 and pair == tile_to_index(ctx.winning_tile):
+    if len(triplets) == 4 and pair == tile_to_index(ctx.winning_tile):  # 四暗刻単騎の判定になっているので、四暗刻の判定にすべき
         yakuman_names.append('四暗刻')
-    if ctx.is_tsumo and ctx.is_tenhou:
+    if ctx.is_tsumo and ctx.is_tenhou:                                  # ツモで、天和であれば
         yakuman_names.append('天和')
-    if ctx.is_tsumo and ctx.is_chiihou:
+    if ctx.is_tsumo and ctx.is_chiihou:                                 # ツモで、地和であれば
         yakuman_names.append('地和')
-    if yakuman_names:
+    if yakuman_names:                                                   # 役満があれば、その時点でreturn
+        # 翻数0, 符数0, [(役満の名前, 翻数)], 役満数
         return 0, 0, [(name, 13) for name in dict.fromkeys(yakuman_names)], len(dict.fromkeys(yakuman_names))
 
+    # 役を判定する
+    # 役を入れるためのyakuを作成
     yaku: Dict[str, int] = {}
-    if len(ctx.open_melds) == 0 and ctx.is_tsumo:
+    if len(ctx.open_melds) == 0 and ctx.is_tsumo:   # 鳴いてない上に、ツモなら門前清自摸和成立
         yaku['門前清自摸和'] = 1
-    if ctx.is_double_riichi:
+    if ctx.is_double_riichi:                        # ダブル立直していればダブりー
         yaku['ダブル立直'] = 2
-    elif ctx.is_riichi:
+    elif ctx.is_riichi:                             # ダブりーしていない時、リーチしていれば立直
         yaku['立直'] = 1
-    if ctx.is_chankan:
+    if ctx.is_chankan:                              # 槍槓が発生したら槍槓
         yaku['槍槓'] = 1
-    if ctx.is_rinshan:
+    if ctx.is_rinshan:                              # 嶺上であがれば嶺上
         yaku['嶺上開花'] = 1
-    if ctx.is_haitei:
+    if ctx.is_haitei:                               # 海底なら海底撈月
         yaku['海底撈月'] = 1
-    if ctx.is_houtei:
+    if ctx.is_houtei:                               # 河底なら河底撈魚
         yaku['河底撈魚'] = 1
-    if all(not is_terminal_or_honor(i) for i, c in enumerate(all_counts) for _ in range(c)):
+    if all(not is_terminal_or_honor(i) for i, c in enumerate(all_counts) for _ in range(c)):    # 全ての牌が2~8なら
         yaku['断么九'] = 1
+    
+    # 同じ順子を数えて、二盃口や一盃口を判定する
+    # seq_counter={順子の一番初めの牌: その順子が何回出てきたか, ...}
+    # {0: 2, 2:, 1}は123が2個、345が1個みたいなものを作る。
     seq_counter: Dict[int, int] = {}
-    for s in sequences:
-        seq_counter[s] = seq_counter.get(s, 0) + 1
-    if len(ctx.open_melds) == 0:
-        pair_seq = sum(v // 2 for v in seq_counter.values())
-        if pair_seq >= 2:
+    for s in sequences:                                         # sequencesは分解形
+        seq_counter[s] = seq_counter.get(s, 0) + 1              # seq_counter.get(s, 0)はsがまだなければ0を格納。あればそれを格納。それに+1
+    if len(ctx.open_melds) == 0:                                # 面前なら                             
+        pair_seq = sum(v // 2 for v in seq_counter.values())    # 同じ順子の組み合わせが何個あるか？
+        if pair_seq >= 2:                                       # 2つあると二盃口
             yaku['二盃口'] = 3
-        elif pair_seq >= 1:
+        elif pair_seq >= 1:                                     # 1つあると一盃口
             yaku['一盃口'] = 1
+    
+    # これは役牌が何個あるか
     yakuhai = sum(yakuhai_han(idx, ctx.seat, ctx.round_wind) for idx in triplet_like)
     if yakuhai:
         yaku['役牌'] = yakuhai
-    if len(triplet_like) == 4:
+    if len(triplet_like) == 4:  # 対々和は刻子(triplet_like)が4つ
         yaku['対々和'] = 2
+        
+    # 暗刻がいくつあるかの判定するclosed_tripを作成
     closed_trip = len(triplets) + sum(1 for m in ctx.closed_melds if m.kind == 'ankan')
-    if closed_trip >= 3:
+    if closed_trip >= 3:                                                # しかし、ロンでできた刻子も入れてしまう
         yaku['三暗刻'] = 2
-    if len(quads) >= 3:
+    if len(quads) >= 3:                                                 # 3つ槓があれば、3槓子
         yaku['三槓子'] = 2
-    for num in range(9):
-        if all(x in triplet_like for x in (num, num + 9, num + 18)):
+    for num in range(9):                                                # 0~8について
+        if all(x in triplet_like for x in (num, num + 9, num + 18)):    # 萬,筒,索の全てで同じ数の刻子があるか
             yaku['三色同刻'] = 2
             break
-    for num in range(7):
-        if all(x in sequence_like for x in (num, num + 9, num + 18)):
-            yaku['三色同順'] = 2 if len(ctx.open_melds) == 0 else 1
+    for num in range(7):                                                # 0~6について(順子は起点のみ)
+        if all(x in sequence_like for x in (num, num + 9, num + 18)):   # 萬,筒,索の全てで同じ数の順子があるか
+            yaku['三色同順'] = 2 if len(ctx.open_melds) == 0 else 1     # もし副露していれば1翻
             break
-    for suit in range(3):
-        suit_bases = {x % 9 for x in sequence_like if x // 9 == suit}
-        if {0, 3, 6}.issubset(suit_bases):
-            yaku['一気通貫'] = 2 if len(ctx.open_melds) == 0 else 1
+    for suit in range(3):                                               # 萬,筒,索に分ける
+        suit_bases = {x % 9 for x in sequence_like if x // 9 == suit}   # 今見てる牌の種類かを確認し、x % 9を格納
+        if {0, 3, 6}.issubset(suit_bases):                              # suit_basesに{0, 3, 6}が全てあるかどうか？
+            yaku['一気通貫'] = 2 if len(ctx.open_melds) == 0 else 1     # もし副露していれば1翻
             break
-    if all(all_counts[i] == 0 or is_terminal_or_honor(i) for i in range(34)):
+    if all(all_counts[i] == 0 or is_terminal_or_honor(i) for i in range(34)):   # 19字牌かどうかの確認
         yaku['混老頭'] = 2
-    unique_suits = {i // 9 for i in range(27) if all_counts[i] > 0}
-    has_honor = any(all_counts[i] > 0 for i in range(27, 34))
-    if len(unique_suits) == 1 and has_honor:
-        yaku['混一色'] = 3 if len(ctx.open_melds) == 0 else 2
-    if len(unique_suits) == 1 and not has_honor:
-        yaku['清一色'] = 6 if len(ctx.open_melds) == 0 else 5
-    if sum(1 for x in triplet_like if x in (31, 32, 33)) == 2 and pair in (31, 32, 33):
+    
+    # ここで一色手を判定
+    unique_suits = {i // 9 for i in range(27) if all_counts[i] > 0}     # 数牌部分でどの種類の牌が含まれているかを萬子=0,筒子=1,索子=2で分ける。setなので重複なし
+    has_honor = any(all_counts[i] > 0 for i in range(27, 34))           # 字牌を1枚でも持っているかどうか
+    if len(unique_suits) == 1 and has_honor:                            # 数牌が一色で、字牌を持っているならホンイツ
+        yaku['混一色'] = 3 if len(ctx.open_melds) == 0 else 2           # 鳴いているなら2翻
+    if len(unique_suits) == 1 and not has_honor:                        # 数牌のみの場合は清一色
+        yaku['清一色'] = 6 if len(ctx.open_melds) == 0 else 5           # 鳴いているなら5翻
+    if sum(1 for x in triplet_like if x in (31, 32, 33)) == 2 and pair in (31, 32, 33): # 3元牌の刻子が2つと、雀頭が一つ
         yaku['小三元'] = 2
 
+    # 帯么九関連の判定
+    # まず、雀頭を除いた分解形(手牌)と鳴き面子をallgroupに格納し、そこからそれらが役を満たすか確認
     all_groups = [(k, i) for k, i in decomp if k != 'pair']
+    # 鳴き面子をallgroupにdecompと同じようなタプル(面子の種類, 始まりの牌)の形式で追加
     all_groups.extend([(m.kind if m.kind == 'sequence' else 'triplet', tile_to_index(m.tiles[0])) for m in ctx.open_melds + ctx.closed_melds])
+    
+    # 帯么九面子であるかどうかの確認する関数
     def group_has_yaochu(kind: str, idx: int) -> bool:
         if kind == 'sequence':
-            return idx % 9 in (0, 6)
-        return is_terminal_or_honor(idx)
+            return idx % 9 in (0, 6)        # 順子が条件を満たすか
+        return is_terminal_or_honor(idx)    # 順子でない場合、19字牌か？
+    
+    # 面子の全てが帯么九面子であるかを確認し、雀頭が19字牌かどうかを確認
     if all(group_has_yaochu(kind, idx) for kind, idx in all_groups) and is_terminal_or_honor(pair):
-        if any(i >= 27 for _, i in all_groups) or pair >= 27:
-            yaku['混全帯么九'] = 2 if len(ctx.open_melds) == 0 else 1
-        else:
-            yaku['純全帯么九'] = 3 if len(ctx.open_melds) == 0 else 2
+        if any(i >= 27 for _, i in all_groups) or pair >= 27:           # 字牌があれば
+            yaku['混全帯么九'] = 2 if len(ctx.open_melds) == 0 else 1   # 混全帯么九。鳴いたら1翻
+        else:                                                           # 字牌がなければ
+            yaku['純全帯么九'] = 3 if len(ctx.open_melds) == 0 else 2   # 純全帯么九。鳴いたら2翻
 
+    # 平和の判定
+    # 鳴いていない＆順子が4つある＆役牌がない
     if len(ctx.open_melds) == 0 and len(sequences) == 4 and yakuhai_han(pair, ctx.seat, ctx.round_wind) == 0:
-        if wait_type(decomp, tile_to_index(ctx.winning_tile), pair) == 'ryanmen':
+        if wait_type(decomp, tile_to_index(ctx.winning_tile), pair) == 'ryanmen':   # 待ち方が両面
             yaku['平和'] = 1
 
-    han = sum(yaku.values())
-    if han == 0:
+    han = sum(yaku.values())                        # yakuから翻数を取り出す
+    if han == 0:                                    # 0翻なら0, 0, [], 0を返す
         return 0, 0, [], 0
-    yaku_names = list(yaku.items())
-    fu = calculate_fu(decomp, ctx, yaku.keys())
-    return han, fu, yaku_names, 0
+    yaku_names = list(yaku.items())                 # yakuをリスト化し、yaku_namesを作成
+    fu = calculate_fu(decomp, ctx, yaku.keys())     # 符計算
+    return han, fu, yaku_names, 0                   # 出力
 
 
 def evaluate_hand(closed_tiles: List[str], ctx: WinContext) -> HandScore | None:
