@@ -251,35 +251,54 @@ def point_table_tsumo(han: int, fu: int, dealer: bool) -> Tuple[int, int, int]:
     return child * 2 + parent, child, parent
 
 
+# 符計算をする関数
+# decomp=分解形、ctx=アガリ状況、yaku_names=成立役名
+# Iterable[str]はリストなどに限らない、順番に取り出せるもの。
 def calculate_fu(decomp: List[Tuple[str, int]], ctx: WinContext, yaku_names: Iterable[str]) -> int:
-    names = set(yaku_names)
-    if '七対子' in names:
+    names = set(yaku_names)         # 重複がない役名の集合体を作成
+    
+    # 七対子の時は25符
+    if '七対子' in names:               
         return 25
+    
+    # 平和の時は30符
     if '平和' in names and ctx.is_tsumo:
         return 20
+    
+    # 基本符を20符とし、まずは雀頭に注目する
     fu = 20
     pair = next(idx for kind, idx in decomp if kind == 'pair')
+    
+    # ＊＊＊警告＊＊＊　雀頭が役牌であれば2符付けようとしているが、ここはおかしいエラーが出る
     if yakuhai_han(pair, ctx.seat, ctx.round_wind):
         fu += 2
+        
+    # ツモであれば2符。その他はロンなので10符という処理だが、ロンで10符つくのは面前の時のみなのでこれはおかしい
     if ctx.is_tsumo:
         fu += 2
     else:
         fu += 10
+        
+    # 待ち方を抽出し、各待ち方について符を足す
     wait = wait_type(decomp, tile_to_index(ctx.winning_tile), pair)
+    
+    # カンチャン、ペンチャン、単騎の時は2符足す
     if wait in ('kanchan', 'penchan', 'tanki'):
         fu += 2
+        
+    # 刻子や槓子についての符計算を行う。まず手牌の刻子について行い、そのあと鳴いた面子に対して行う。
     for kind, idx in decomp:
         if kind == 'triplet':
-            fu += 8 if is_terminal_or_honor(idx) else 4
+            fu += 8 if is_terminal_or_honor(idx) else 4     # 手牌にある刻子が19字牌なら8符、それ以外なら4符
     for meld in ctx.open_melds + ctx.closed_melds:
-        idx = tile_to_index(meld.tiles[0])
+        idx = tile_to_index(meld.tiles[0])                  # 牌を整数化
         if meld.kind == 'triplet':
-            fu += 4 if is_terminal_or_honor(idx) else 2
+            fu += 4 if is_terminal_or_honor(idx) else 2     # 副露にある刻子が19字牌なら4符、それ以外なら2符
         elif meld.kind in ('minkan', 'kakan'):
-            fu += 16 if is_terminal_or_honor(idx) else 8
+            fu += 16 if is_terminal_or_honor(idx) else 8    # 副露にある明槓が19字牌なら16符、それ以外なら8符
         elif meld.kind == 'ankan':
-            fu += 32 if is_terminal_or_honor(idx) else 16
-    return ((fu + 9) // 10) * 10
+            fu += 32 if is_terminal_or_honor(idx) else 16   # 副露にある明槓が19字牌なら32符、それ以外なら16符
+    return ((fu + 9) // 10) * 10                            # 符を10単位で切りあげて出力
 
 
 def eval_standard(counts: List[int], decomp: List[Tuple[str, int]], ctx: WinContext) -> Tuple[int, int, List[Tuple[str, int]], int]:
