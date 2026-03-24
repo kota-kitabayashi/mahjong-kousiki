@@ -220,23 +220,34 @@ def point_table_ron(han: int, fu: int, dealer: bool) -> int:
     return ((base * mult + 99) // 100) * 100        # ここで+99とすることで切り上げ処理をしている
 
 
+# ツモの点数を計算する
+# 出力は(点数の合計, 子の支払い, 親の支払い)となっている。あがった人が親であるときには親の支払いも表示になってしまっているが、しゃーなし
 def point_table_tsumo(han: int, fu: int, dealer: bool) -> Tuple[int, int, int]:
+    # 4倍満の場合
     if han >= 13:
         return (YONBAIMAN_PARENT, 16000, 16000) if dealer else (YONBAIMAN_CHILD, 8000, 16000)
+    
+    # 3倍満の場合
     if han >= 11:
         return (SANBAIMAN_PARENT, 12000, 12000) if dealer else (SANBAIMAN_CHILD, 6000, 12000)
+    
+    # 倍満の場合
     if han >= 8:
         return (BAIMAN_PARENT, 8000, 8000) if dealer else (BAIMAN_CHILD, 4000, 8000)
+    
+    # 跳満の場合
     if han >= 6:
         return (HANEMAN_PARENT, 6000, 6000) if dealer else (HANEMAN_CHILD, 3000, 6000)
+    
+    # 基本点baseを計算し、親なら6倍、子なら4倍した数が満貫に到達していれば満貫へまとめる。その他は100点単位で切り上げ、点数とする
     base = fu * (2 ** (han + 2))
     if han >= 5 or ((dealer and base * 6 >= 12000) or ((not dealer) and base * 4 >= 8000)):
         return (MANGAN_PARENT, 4000, 4000) if dealer else (MANGAN_CHILD, 2000, 4000)
     if dealer:
-        each = ((base * 2 + 99) // 100) * 100
+        each = ((base * 2 + 99) // 100) * 100       # 基本点を2倍にしてそれを100点単位で切り上げ
         return each * 3, each, each
-    child = ((base + 99) // 100) * 100
-    parent = ((base * 2 + 99) // 100) * 100
+    child = ((base + 99) // 100) * 100              # 基本点をそのまま100点単位切り上げ
+    parent = ((base * 2 + 99) // 100) * 100         # 親は2倍
     return child * 2 + parent, child, parent
 
 
