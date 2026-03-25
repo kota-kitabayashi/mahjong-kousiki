@@ -1,9 +1,12 @@
+# これは将来クラス
 from __future__ import annotations
 
+# randomとクラスを作りやすくするデータクラス。typingからリストとタプル
 import random
 from dataclasses import dataclass
 from typing import List, Tuple
 
+# 今まで作ったやつから色々持ってきてるってことよ！
 from .evaluator import WinContext, evaluate_hand, winning_tiles_for_tenpai
 from .logger import MahjongLogger
 from .player import PlayerState
@@ -12,14 +15,15 @@ from .rules import HONBA_VALUE, RIICHI_STICK, ROUND_WIND_NAMES, SEAT_WIND_NAMES,
 from .tile import Meld, index_to_tile, tile_sort_key, tile_to_index, tiles_to_string
 
 
+# 局結果を返すRoundResult
 @dataclass
 class RoundResult:
-    win: bool
-    winner: int | None = None
-    loser: int | None = None
-    by_tsumo: bool = False
-    renchan: bool = False
-    reason: str = ''
+    win: bool                   # アガリで終わったか？
+    winner: int | None = None   # アガリ者の席番号
+    loser: int | None = None    # 誰からロンしたか？
+    by_tsumo: bool = False      # そのアガリがツモかどうか  
+    renchan: bool = False       # 連荘しているかどうか
+    reason: str = ''            # 結果の詳細を格納する。"tsumo", "ron"とか
 
 
 class MahjongGame:
