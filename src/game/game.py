@@ -48,9 +48,11 @@ class MahjongGame:
         self.last_discarder: int | None = None  # 直前に捨てられた牌を捨てた人のプレイヤー番号(0, 1, 2, 3で入る)
         self.first_cycle = True                 # まだ局の1巡目かどうか？ダブル立直や天和などに使う
 
+    # 牌山を作成する関数
+    # 34種各4枚の合計136枚の牌を作成しシャッフルする
     def build_wall(self) -> List[str]:
-        wall = [index_to_tile(i) for i in range(34) for _ in range(4)]
-        self.random.shuffle(wall)
+        wall = [index_to_tile(i) for i in range(34) for _ in range(4)]  # 34種各4枚の合計136枚の牌を作成
+        self.random.shuffle(wall)                                       # シャッフル
         return wall
 
     def setup_round(self) -> None:
