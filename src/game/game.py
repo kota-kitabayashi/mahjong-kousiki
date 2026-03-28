@@ -55,24 +55,25 @@ class MahjongGame:
         self.random.shuffle(wall)                                       # シャッフル
         return wall
 
+    # 1局開始時の初期化
     def setup_round(self) -> None:
-        self.wall = self.build_wall()
-        self.dead_wall = self.wall[-14:]
-        self.wall = self.wall[:-14]
-        self.rinshan = self.dead_wall[:4]
-        self.dora_indicator = self.dead_wall[4]
-        for p in self.players:
+        self.wall = self.build_wall()           # 山を作成
+        self.dead_wall = self.wall[-14:]        # 王牌を作成
+        self.wall = self.wall[:-14]             # 牌山から王牌分を削除
+        self.rinshan = self.dead_wall[:4]       # 嶺上牌を王牌から作成
+        self.dora_indicator = self.dead_wall[4] # ドラ表示牌を設定
+        for p in self.players:                  # 各プレイヤーの局状態初期化
             p.reset_round_state()
-        for _ in range(13):
+        for _ in range(13):                     # 手牌を作成
             for i in range(4):
                 self.players[(self.dealer + i) % 4].hand.append(self.wall.pop(0))
-        for p in self.players:
+        for p in self.players:                  # 各プレイヤーの手牌を整列
             p.sort_hand()
-        self.current_turn = self.dealer
-        self.last_discard = None
-        self.last_discarder = None
-        self.first_cycle = True
-        self.log_round_start()
+        self.current_turn = self.dealer         # 親が最初の手番
+        self.last_discard = None                # 直前に捨てられた牌はない
+        self.last_discarder = None              # 捨てたやつもいねえ
+        self.first_cycle = True                 # 1巡目
+        self.log_round_start()                  # 開局ログを出す
 
     def log_round_start(self) -> None:
         name = f'{ROUND_WIND_NAMES[self.round_wind]}{self.round_number}局'
