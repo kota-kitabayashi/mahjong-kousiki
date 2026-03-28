@@ -26,25 +26,27 @@ class RoundResult:
     reason: str = ''            # 結果の詳細を格納する。"tsumo", "ron"とか
 
 
+# 麻雀ゲーム本体クラス
 class MahjongGame:
+    # 初期化関数
     def __init__(self, seed: int | None = None) -> None:
-        self.random = random.Random(seed)
-        self.players = [PlayerState(i, START_SCORE) for i in range(4)]
-        self.ai = [RandomPlayer(self.random.randrange(1 << 30)) for _ in range(4)]
-        self.logger = MahjongLogger('mahjong_log.txt')
-        self.dealer = 0
-        self.round_wind = 0
-        self.round_number = 1
-        self.honba = 0
-        self.riichi_sticks = 0
-        self.wall: List[str] = []
-        self.dead_wall: List[str] = []
-        self.dora_indicator = ''
-        self.rinshan: List[str] = []
-        self.current_turn = 0
-        self.last_discard: str | None = None
-        self.last_discarder: int | None = None
-        self.first_cycle = True
+        self.random = random.Random(seed)                                           # 乱数生成器
+        self.players = [PlayerState(i, START_SCORE) for i in range(4)]              # 4人のプレイヤーステートを作る
+        self.ai = [RandomPlayer(self.random.randrange(1 << 30)) for _ in range(4)]  # 4人のプレイヤーを作る
+        self.logger = MahjongLogger('mahjong_log.txt')                              # 麻雀ログを作る
+        self.dealer = 0                         # 親は0
+        self.round_wind = 0                     # 場風は0(東)
+        self.round_number = 1                   # 局は0局
+        self.honba = 0                          # 本場は0本
+        self.riichi_sticks = 0                  # リー棒は出ていない
+        self.wall: List[str] = []               # 牌山
+        self.dead_wall: List[str] = []          # 王牌
+        self.dora_indicator = ''                # ドラ表示牌
+        self.rinshan: List[str] = []            # 槓専用ツモ牌
+        self.current_turn = 0                   # 今、誰の手番か
+        self.last_discard: str | None = None    # 直前に捨てられた牌
+        self.last_discarder: int | None = None  # 直前に捨てられた牌を捨てた人のプレイヤー番号(0, 1, 2, 3で入る)
+        self.first_cycle = True                 # まだ局の1巡目かどうか？ダブル立直や天和などに使う
 
     def build_wall(self) -> List[str]:
         wall = [index_to_tile(i) for i in range(34) for _ in range(4)]
