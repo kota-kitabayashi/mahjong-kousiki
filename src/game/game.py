@@ -91,8 +91,9 @@ class MahjongGame:
     def score_line(self) -> str:
         return '点数 ' + ' '.join(f'{SEAT_WIND_NAMES[(i - self.dealer) % 4]}家:{p.score}点' for i, p in enumerate(self.players))
 
+    # 最後のツモかどうかを判定する関数
     def is_last_draw(self) -> bool:
-        return len(self.wall) == 0
+        return len(self.wall) == 0  # 牌山に牌が0であればTrue
 
     def can_riichi(self, seat: int) -> bool:
         p = self.players[seat]
