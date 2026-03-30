@@ -95,11 +95,13 @@ class MahjongGame:
     def is_last_draw(self) -> bool:
         return len(self.wall) == 0  # 牌山に牌が0であればTrue
 
+    # リーチできるかどうかを判定する関数
     def can_riichi(self, seat: int) -> bool:
         p = self.players[seat]
+        # リーチしている or 面前ではない or スコアが1000点以下だと立直できない
         if p.riichi_declared or not p.is_menzen() or p.score < 1000:
             return False
-        waits = winning_tiles_for_tenpai(p.hand, [], p.melds, seat, self.round_wind)
+        waits = winning_tiles_for_tenpai(p.hand, [], p.melds, seat, self.round_wind)    # 待ち牌があるかどうか
         return len(waits) > 0
 
     def draw_tile(self, seat: int, rinshan: bool = False) -> str:
