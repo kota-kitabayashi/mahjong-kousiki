@@ -75,15 +75,16 @@ class MahjongGame:
         self.first_cycle = True                 # 1巡目
         self.log_round_start()                  # 開局ログを出す
 
+    # 局初めのログ
     def log_round_start(self) -> None:
-        name = f'{ROUND_WIND_NAMES[self.round_wind]}{self.round_number}局'
-        self.logger.log(f'===== {name} {self.honba}本場 供託{self.riichi_sticks} =====')
-        self.logger.log(f'山 {tiles_to_string(self.wall)}')
-        for i in range(4):
+        name = f'{ROUND_WIND_NAMES[self.round_wind]}{self.round_number}局'                  # 「東何局」をnameに格納 
+        self.logger.log(f'===== {name} {self.honba}本場 供託{self.riichi_sticks} =====')    # 「東何局」+「何本場 供託何本」をログ
+        self.logger.log(f'山 {tiles_to_string(self.wall)}')                                 # 山を1m3mなどでログ
+        for i in range(4):                                                                  # 各プレイヤーの手牌をログ
             p = self.players[i]
             self.logger.log(f'{SEAT_WIND_NAMES[(i - self.dealer) % 4]}家手牌:{p.hand_string()}')
-        self.logger.log(f'ドラ表示牌:{self.dora_indicator}')
-        self.logger.log(self.score_line())
+        self.logger.log(f'ドラ表示牌:{self.dora_indicator}')    # ドラ表示牌をログ
+        self.logger.log(self.score_line())                      # 各プレイヤーの点数をログ
 
     def score_line(self) -> str:
         return '点数 ' + ' '.join(f'{SEAT_WIND_NAMES[(i - self.dealer) % 4]}家:{p.score}点' for i, p in enumerate(self.players))
