@@ -86,6 +86,8 @@ class MahjongGame:
         self.logger.log(f'ドラ表示牌:{self.dora_indicator}')    # ドラ表示牌をログ
         self.logger.log(self.score_line())                      # 各プレイヤーの点数をログ
 
+    # 各プレイヤーの点数を返す関数
+    # 点数 東家:12000点南家:34000点...といった文字列を返す
     def score_line(self) -> str:
         return '点数 ' + ' '.join(f'{SEAT_WIND_NAMES[(i - self.dealer) % 4]}家:{p.score}点' for i, p in enumerate(self.players))
 
