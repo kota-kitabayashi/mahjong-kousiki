@@ -13,3 +13,4 @@
 - [] evaluator.pyのeval_standardで役牌ではなく、役牌名を役の名前にしたい
 - [] evaluator.pyのeval_standardがあまりにも関数をうまく使えていない。同じ処理については関数化し、見やすく、整えるべき
 - [] evaluator.pyのevaluate_handについて七対子の複合役があまりに少ないので追加し是正する
+- [] game.pyのMahjongGameクラスsetup_round関数での王牌の嶺上牌とドラ表示牌の位置が実際と異なる。
