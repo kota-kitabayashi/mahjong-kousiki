@@ -104,10 +104,11 @@ class MahjongGame:
         waits = winning_tiles_for_tenpai(p.hand, [], p.melds, seat, self.round_wind)    # 待ち牌があるかどうか
         return len(waits) > 0
 
+    # 牌山から牌を引いて手牌に入れる関数
     def draw_tile(self, seat: int, rinshan: bool = False) -> str:
-        tile = self.rinshan.pop(0) if rinshan else self.wall.pop(0)
-        self.players[seat].hand.append(tile)
-        self.players[seat].sort_hand()
+        tile = self.rinshan.pop(0) if rinshan else self.wall.pop(0) # 嶺上であれば嶺上牌を、そのほかは牌山から牌を引く
+        self.players[seat].hand.append(tile)                        # 
+        self.players[seat].sort_hand()                              # 
         return tile
 
     def try_tsumo(self, seat: int, drawn_tile: str, rinshan: bool = False) -> bool:
