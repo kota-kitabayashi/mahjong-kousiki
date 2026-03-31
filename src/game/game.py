@@ -111,30 +111,31 @@ class MahjongGame:
         self.players[seat].sort_hand()                              # 
         return tile
 
+    # ツモアガリできるかを判定し、プレイヤーにツモアガリするかを選択させる関数
     def try_tsumo(self, seat: int, drawn_tile: str, rinshan: bool = False) -> bool:
-        p = self.players[seat]
-        ctx = WinContext(
+        p = self.players[seat]                          # プレイヤーを準備、p.何々などで使う
+        ctx = WinContext(                               # アガリ状況を作成
             seat=(seat - self.dealer) % 4,
             round_wind=self.round_wind,
             is_tsumo=True,
-            is_riichi=p.riichi_declared,
-            is_double_riichi=p.double_riichi,
+            is_riichi=p.riichi_declared,                # プレイヤーが立直しているか
+            is_double_riichi=p.double_riichi,           # プレイヤーがダブル立直しているか
             is_ippatsu=False,
-            is_rinshan=rinshan,
-            is_chankan=False,
-            is_haitei=self.is_last_draw(),
+            is_rinshan=rinshan,                         # 嶺上かどうか
+            is_chankan=False,                           # 槍槓かどうか。ツモなので槍槓ではない
+            is_haitei=self.is_last_draw(),              # 最後のツモかどうか
             is_houtei=False,
-            is_tenhou=(seat == self.dealer and p.first_turn and self.first_cycle),
-            is_chiihou=(seat != self.dealer and p.first_turn and self.first_cycle),
-            open_melds=[m for m in p.melds if m.opened],
-            closed_melds=[m for m in p.melds if not m.opened],
-            winning_tile=drawn_tile,
+            is_tenhou=(seat == self.dealer and p.first_turn and self.first_cycle),  # 親＆最初のツモ＆１巡目かどうか
+            is_chiihou=(seat != self.dealer and p.first_turn and self.first_cycle), # 子＆最初のツモ＆１巡目かどうか
+            open_melds=[m for m in p.melds if m.opened],                            # 鳴き面子
+            closed_melds=[m for m in p.melds if not m.opened],                      # 鳴き面子ではない確定面子、カンとか
+            winning_tile=drawn_tile,                    # 引いた牌(ツモ牌)
         )
-        score = evaluate_hand(p.hand, ctx)
-        if score and self.ai[seat].choose_tsumo(True):
-            self.apply_tsumo(seat, score)
+        score = evaluate_hand(p.hand, ctx)              # スコアを算出
+        if score and self.ai[seat].choose_tsumo(True):  # スコアがあるか(NoneだとFalse)＆プレイヤーががツモというか
+            self.apply_tsumo(seat, score)               # ツモアガリ処理
             return True
-        return False
+        return False                                    # ツモするかどうかをTrueFalseで返す
 
     def try_ron_claimers(self, tile: str, discarder: int) -> bool:
         candidates: List[Tuple[int, object]] = []
