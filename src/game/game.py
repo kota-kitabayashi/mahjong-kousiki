@@ -137,43 +137,48 @@ class MahjongGame:
             return True
         return False                                    # ツモするかどうかをTrueFalseで返す
 
+    # 今捨てられた牌をロンアガリできるかを判定し、プレイヤーにロンアガリするかを選択させる関数
     def try_ron_claimers(self, tile: str, discarder: int) -> bool:
-        candidates: List[Tuple[int, object]] = []
-        for offset in range(1, 4):
-            seat = (discarder + offset) % 4
+        candidates: List[Tuple[int, object]] = []               # ロンできる人の候補一覧。[(席番号, アガリ結果)...]
+        for offset in range(1, 4):                              # 牌を捨てた人以外を見る
+            seat = (discarder + offset) % 4                     # discarder=2なら 3→1→2(下家、対面、上家の順)
             p = self.players[seat]
-            if tile in p.furiten_tiles or p.temp_furiten_turn:
+            if tile in p.furiten_tiles or p.temp_furiten_turn:  # フリテンなら飛ばす
                 continue
-            trial = p.hand + [tile]
+            trial = p.hand + [tile]                             # その人の手牌にその牌を追加
             ctx = WinContext(
                 seat=(seat - self.dealer) % 4,
                 round_wind=self.round_wind,
                 is_tsumo=False,
-                is_riichi=p.riichi_declared,
-                is_double_riichi=p.double_riichi,
+                is_riichi=p.riichi_declared,                    # プレイヤーが立直しているか
+                is_double_riichi=p.double_riichi,               # プレイヤーがダブル立直しているか
                 is_ippatsu=False,
                 is_rinshan=False,
-                is_chankan=False,
+                is_chankan=False,                               # 槍槓かどうか。未実装
                 is_haitei=False,
-                is_houtei=(len(self.wall) == 0),
+                is_houtei=(len(self.wall) == 0),                # なぜここでis_last_draw関数を使っていないのか？
                 is_tenhou=False,
                 is_chiihou=False,
                 open_melds=[m for m in p.melds if m.opened],
                 closed_melds=[m for m in p.melds if not m.opened],
-                winning_tile=tile,
+                winning_tile=tile,                              # ロン牌
             )
-            result = evaluate_hand(trial, ctx)
-            if result and self.ai[seat].choose_ron(True):
+            result = evaluate_hand(trial, ctx)                  # 点数
+            if result and self.ai[seat].choose_ron(True):       # プレイヤーがロンするか？
                 candidates.append((seat, result))
-            else:
-                waits = winning_tiles_for_tenpai(p.hand, [m for m in p.melds if m.opened], [m for m in p.melds if not m.opened], (seat - self.dealer) % 4, self.round_wind)
-                if tile in waits:
-                    p.temp_furiten_turn = True
-        if candidates:
-            winner, score = candidates[0]
-            self.apply_ron(winner, discarder, tile, score)
+            else:                                               # プレイヤーがロンしなかったら
+                waits = winning_tiles_for_tenpai(               # 聴牌が確認する
+                    p.hand, [m for m in p.melds if m.opened],
+                    [m for m in p.melds if not m.opened],
+                    (seat - self.dealer) % 4, self.round_wind
+                    )
+                if tile in waits:                               # 聴牌してるのにロンしないなら
+                    p.temp_furiten_turn = True                  # フリテン処理
+        if candidates:                                          # ロンした人がいるなら
+            winner, score = candidates[0]                       # 下家から
+            self.apply_ron(winner, discarder, tile, score)      # ロン処理
             return True
-        return False
+        return False                                            # TFを返す
 
     def available_pon(self, seat: int, tile: str) -> bool:
         return self.players[seat].hand.count(tile) >= 2
