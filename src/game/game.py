@@ -180,8 +180,9 @@ class MahjongGame:
             return True
         return False                                            # TFを返す
 
+    # ポンできるかどうかを返す
     def available_pon(self, seat: int, tile: str) -> bool:
-        return self.players[seat].hand.count(tile) >= 2
+        return self.players[seat].hand.count(tile) >= 2     # その牌が2枚以上ならポンできるよ！
 
     def available_chi_options(self, seat: int, tile: str) -> List[List[str]]:
         idx = tile_to_index(tile)
