@@ -184,21 +184,24 @@ class MahjongGame:
     def available_pon(self, seat: int, tile: str) -> bool:
         return self.players[seat].hand.count(tile) >= 2     # その牌が2枚以上ならポンできるよ！
 
+    # チーできるかを判定し、チー可能なパターンを返す
     def available_chi_options(self, seat: int, tile: str) -> List[List[str]]:
-        idx = tile_to_index(tile)
-        if idx >= 27:
+        idx = tile_to_index(tile)       # 1m→0みたいなこと
+        if idx >= 27:                   # 字牌なら何もないリストを返す
             return []
-        suit = idx // 9
-        num = idx % 9
-        hand = self.players[seat].hand
-        options: List[List[str]] = []
+        suit = idx // 9                 # 何牌か？
+        num = idx % 9                   # 数をみる
+        hand = self.players[seat].hand  # 手牌を代入
+        options: List[List[str]] = []   # チー可能なパターンが入るoptions
+        
+        # 数牌の数numについて、3つのパターンでチーできるかどうかを判定する
         for a, b in ((num - 2, num - 1), (num - 1, num + 1), (num + 1, num + 2)):
-            if 0 <= a <= 8 and 0 <= b <= 8:
-                t1 = index_to_tile(suit * 9 + a)
-                t2 = index_to_tile(suit * 9 + b)
-                if hand.count(t1) >= 1 and hand.count(t2) >= 1:
-                    options.append([t1, tile, t2])
-        return options
+            if 0 <= a <= 8 and 0 <= b <= 8:                     # -1にはならない
+                t1 = index_to_tile(suit * 9 + a)                # 1mや8sなど牌にする
+                t2 = index_to_tile(suit * 9 + b)                # 牌にする
+                if hand.count(t1) >= 1 and hand.count(t2) >= 1: # 手牌にチーできる牌が2つともあれば
+                    options.append([t1, tile, t2])              # optionsに追加
+        return options                                          # optionsを返す
 
     def resolve_calls(self, tile: str, discarder: int) -> bool:
         pon_claimers = []
