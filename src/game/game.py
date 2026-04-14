@@ -203,35 +203,36 @@ class MahjongGame:
                     options.append([t1, tile, t2])              # optionsに追加
         return options                                          # optionsを返す
 
+    # ロンがなかった後の鳴きを処理
     def resolve_calls(self, tile: str, discarder: int) -> bool:
-        pon_claimers = []
-        for offset in range(1, 4):
+        pon_claimers = []                                   # ポンしたいプレイヤーが入る
+        for offset in range(1, 4):                          # 4人全員に聞く。
             seat = (discarder + offset) % 4
             if self.available_pon(seat, tile) and self.ai[seat].choose_pon(True):
-                pon_claimers.append(seat)
-        if pon_claimers:
-            seat = pon_claimers[0]
-            p = self.players[seat]
+                pon_claimers.append(seat)                   # ポンするなら候補に入れる
+        if pon_claimers:                                    # ポンするならポン処理
+            seat = pon_claimers[0]                          # ポンするなら
+            p = self.players[seat]                          # プレイヤーを指定
+            p.hand.remove(tile)                             # 牌を消す
             p.hand.remove(tile)
-            p.hand.remove(tile)
-            p.melds.append(Meld('triplet', [tile, tile, tile], True, tile, discarder))
-            p.sort_hand()
-            self.logger.log(f'{SEAT_WIND_NAMES[(seat - self.dealer) % 4]}家 ポン {tile}')
-            self.current_turn = seat
+            p.melds.append(Meld('triplet', [tile, tile, tile], True, tile, discarder))      # 鳴き面子を入れる
+            p.sort_hand()                                                                   # 手牌をソート
+            self.logger.log(f'{SEAT_WIND_NAMES[(seat - self.dealer) % 4]}家 ポン {tile}')   # ログを吐く
+            self.current_turn = seat                        # 手番を鳴いた人に移す
             return True
-        seat = (discarder + 1) % 4
-        options = self.available_chi_options(seat, tile)
-        choice = self.ai[seat].choose_chi(len(options))
-        if choice >= 0:
-            selected = options[choice]
+        seat = (discarder + 1) % 4                          # 出した人の下家
+        options = self.available_chi_options(seat, tile)    # チーのオプションを出す
+        choice = self.ai[seat].choose_chi(len(options))     # チーが可能かどうか？
+        if choice >= 0:                                     # チョイスするかどうか
+            selected = options[choice]                      # 選んだ鳴きパターン
             p = self.players[seat]
-            for t in selected:
+            for t in selected:                              # 鳴いた牌以外の牌は手牌から消す      
                 if t != tile:
                     p.hand.remove(t)
-            p.melds.append(Meld('sequence', sorted(selected, key=tile_sort_key), True, tile, discarder))
-            p.sort_hand()
-            self.logger.log(f'{SEAT_WIND_NAMES[(seat - self.dealer) % 4]}家 チー {"".join(selected)}')
-            self.current_turn = seat
+            p.melds.append(Meld('sequence', sorted(selected, key=tile_sort_key), True, tile, discarder))    # 鳴き面子として登録
+            p.sort_hand()                                                                                   # ソート
+            self.logger.log(f'{SEAT_WIND_NAMES[(seat - self.dealer) % 4]}家 チー {"".join(selected)}')      # ログだす
+            self.current_turn = seat                                                                        # 手番をその人にする
             return True
         return False
 
