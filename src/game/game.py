@@ -236,21 +236,22 @@ class MahjongGame:
             return True
         return False
 
+    # 誰が何を切るかを決め、局情報を更新する
     def choose_and_discard(self, seat: int, drawn_tile: str | None) -> str:
-        p = self.players[seat]
-        if p.riichi_declared:
+        p = self.players[seat]      # プレイヤーを決める
+        if p.riichi_declared:       # リーチしていれば、自摸切り状態(自模った牌があれば違う牌を切る構造)
             idx = p.hand.index(drawn_tile) if drawn_tile in p.hand else len(p.hand) - 1
-        else:
+        else:                       # リーチでない場合はツモと打牌
             idx = self.ai[seat].choose_discard(p.hand, drawn_tile)
-        tile = p.hand.pop(idx)
-        p.discards.append(tile)
-        p.sort_hand()
-        for x in set(p.discards):
+        tile = p.hand.pop(idx)      # 打牌した牌を手牌からなくす
+        p.discards.append(tile)     # 河に出す
+        p.sort_hand()               # 理牌
+        for x in set(p.discards):   # 捨て牌にxがある場合、フリテンにする
             p.furiten_tiles.add(x)
-        self.logger.log(f'{SEAT_WIND_NAMES[(seat - self.dealer) % 4]}家 打牌 {tile} 手牌:{p.hand_string()}')
-        self.last_discard = tile
-        self.last_discarder = seat
-        return tile
+        self.logger.log(f'{SEAT_WIND_NAMES[(seat - self.dealer) % 4]}家 打牌 {tile} 手牌:{p.hand_string()}')    # ログ
+        self.last_discard = tile    # 最後の捨て牌をtileに定義
+        self.last_discarder = seat  # 最後の捨てた人を更新
+        return tile                 # 捨てた牌を戻り値
 
     def maybe_declare_riichi(self, seat: int) -> None:
         p = self.players[seat]
