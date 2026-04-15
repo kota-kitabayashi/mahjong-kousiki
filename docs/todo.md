@@ -17,3 +17,4 @@
 - [ ] MahjongGameクラスcan_riichi関数で持ち点が1000点以下だと立直できない定義があるので訂正するのと、持ち点が0点以下でも正しく動作するかを検証する。
 - [ ] MahjongGameクラスtry_ron_claimersで槍槓が実装されていない
 - [ ] MahjongGameクラスtry_ron_claimersでis_last_draw関数がつかわれていない
+- [ ] MahjongGameクラスchoose_and_discardで、リーチ後、正しく自摸切りができていない。手出し、自摸切りが区分づけられていない
