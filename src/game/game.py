@@ -263,27 +263,28 @@ class MahjongGame:
             self.riichi_sticks += 1                                     # リーチ棒を局として追加
             self.logger.log(f'{SEAT_WIND_NAMES[(seat - self.dealer) % 4]}家 立直!') # ログ
 
+    # ツモの時の点数処理など
     def apply_tsumo(self, winner: int, score) -> None:
-        w = self.players[winner]
-        if winner == self.dealer:
-            pay = score.tsumo_parent_pay + self.honba * 100
-            for i in range(4):
+        w = self.players[winner]                                # 勝った人を定義
+        if winner == self.dealer:                               # 自模った人が親なら
+            pay = score.tsumo_parent_pay + self.honba * 100     # 払う点数を定義
+            for i in range(4):                                  # ツモ者以外の人がその点数を払う
                 if i != winner:
                     self.players[i].score -= pay
                     w.score += pay
-        else:
-            child = score.tsumo_child_pay + self.honba * 100
-            parent = score.tsumo_parent_pay + self.honba * 100
+        else:                                                   # 自模った人が子なら
+            child = score.tsumo_child_pay + self.honba * 100    # 子が払う点数を定義
+            parent = score.tsumo_parent_pay + self.honba * 100  # 親が払う点数を定義
             for i in range(4):
                 if i == winner:
                     continue
-                payment = parent if i == self.dealer else child
-                self.players[i].score -= payment
-                w.score += payment
-        w.score += self.riichi_sticks * 1000
-        self.logger.log(f'ツモアガリ {SEAT_WIND_NAMES[(winner - self.dealer) % 4]}家 {score.han}翻{score.fu}符 {score.yaku} {self.score_line()}')
-        self.riichi_sticks = 0
-        self.round_end(RoundResult(True, winner, None, True, winner == self.dealer, 'tsumo'))
+                payment = parent if i == self.dealer else child # 支払う点数を定義から持ってくる 
+                self.players[i].score -= payment                # 点数を支払う
+                w.score += payment                              # 点数をもらう
+        w.score += self.riichi_sticks * 1000                    # スコアに供託をプラスする
+        self.logger.log(f'ツモアガリ {SEAT_WIND_NAMES[(winner - self.dealer) % 4]}家 {score.han}翻{score.fu}符 {score.yaku} {self.score_line()}') # ログ
+        self.riichi_sticks = 0                                  # リーチ棒を0にする
+        self.round_end(RoundResult(True, winner, None, True, winner == self.dealer, 'tsumo'))   # ラウンドリザルトを定義
 
     def apply_ron(self, winner: int, loser: int, tile: str, score) -> None:
         payment = score.ron_points + self.honba * 300
