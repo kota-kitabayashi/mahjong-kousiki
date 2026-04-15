@@ -253,14 +253,15 @@ class MahjongGame:
         self.last_discarder = seat  # 最後の捨てた人を更新
         return tile                 # 捨てた牌を戻り値
 
+    # 立直処理
     def maybe_declare_riichi(self, seat: int) -> None:
-        p = self.players[seat]
-        if self.can_riichi(seat) and self.ai[seat].choose_riichi(True):
-            p.riichi_declared = True
-            p.double_riichi = p.first_turn and self.first_cycle
-            p.score -= RIICHI_STICK
-            self.riichi_sticks += 1
-            self.logger.log(f'{SEAT_WIND_NAMES[(seat - self.dealer) % 4]}家 立直!')
+        p = self.players[seat]                                          # 席
+        if self.can_riichi(seat) and self.ai[seat].choose_riichi(True): # リーチできるかどうかを調べ、リーチ処理をする
+            p.riichi_declared = True                                    # リーチをtrue
+            p.double_riichi = p.first_turn and self.first_cycle         # 1巡目で一回目ならだぶりー
+            p.score -= RIICHI_STICK                                     # リーチ棒を点数から引く
+            self.riichi_sticks += 1                                     # リーチ棒を局として追加
+            self.logger.log(f'{SEAT_WIND_NAMES[(seat - self.dealer) % 4]}家 立直!') # ログ
 
     def apply_tsumo(self, winner: int, score) -> None:
         w = self.players[winner]
