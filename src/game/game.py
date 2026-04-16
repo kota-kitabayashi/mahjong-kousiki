@@ -286,13 +286,14 @@ class MahjongGame:
         self.riichi_sticks = 0                                  # リーチ棒を0にする
         self.round_end(RoundResult(True, winner, None, True, winner == self.dealer, 'tsumo'))   # ラウンドリザルトを定義
 
+    # ロンの時の点数処理など
     def apply_ron(self, winner: int, loser: int, tile: str, score) -> None:
-        payment = score.ron_points + self.honba * 300
-        self.players[loser].score -= payment
-        self.players[winner].score += payment + self.riichi_sticks * 1000
-        self.logger.log(f'ロンアガリ {SEAT_WIND_NAMES[(winner - self.dealer) % 4]}家 <- {SEAT_WIND_NAMES[(loser - self.dealer) % 4]}家 {tile} {score.han}翻{score.fu}符 {score.yaku} {self.score_line()}')
-        self.riichi_sticks = 0
-        self.round_end(RoundResult(True, winner, loser, False, winner == self.dealer, 'ron'))
+        payment = score.ron_points + self.honba * 300                       # ロンの時はロンの点数と本場
+        self.players[loser].score -= payment                                # 放銃者に点数を払わせる
+        self.players[winner].score += payment + self.riichi_sticks * 1000   # アガリした人に
+        self.logger.log(f'ロンアガリ {SEAT_WIND_NAMES[(winner - self.dealer) % 4]}家 <- {SEAT_WIND_NAMES[(loser - self.dealer) % 4]}家 {tile} {score.han}翻{score.fu}符 {score.yaku} {self.score_line()}')  # ログ
+        self.riichi_sticks = 0                                              # リーチ棒を0にする
+        self.round_end(RoundResult(True, winner, loser, False, winner == self.dealer, 'ron'))   # ラウンドリザルトを作成
 
     def apply_draw(self) -> None:
         tenpais = []
