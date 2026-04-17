@@ -295,26 +295,27 @@ class MahjongGame:
         self.riichi_sticks = 0                                              # リーチ棒を0にする
         self.round_end(RoundResult(True, winner, loser, False, winner == self.dealer, 'ron'))   # ラウンドリザルトを作成
 
+    # 流局の時の処理を書いた関数
     def apply_draw(self) -> None:
-        tenpais = []
+        tenpais = []                                                # テンパイな人を入れる
         for i, p in enumerate(self.players):
             waits = winning_tiles_for_tenpai(p.hand, [m for m in p.melds if m.opened], [m for m in p.melds if not m.opened], (i - self.dealer) % 4, self.round_wind)
-            tenpai = len(waits) > 0
-            tenpais.append(tenpai)
-            status = '聴牌' if tenpai else 'ノーテン'
-            self.logger.log(f"{SEAT_WIND_NAMES[(i - self.dealer) % 4]}家 {status} 待ち:{''.join(waits)}")
-        count = sum(tenpais)
-        if count == 1:
-            for i, flag in enumerate(tenpais):
+            tenpai = len(waits) > 0                                 # 聴牌しているか？
+            tenpais.append(tenpai)                                  # 聴牌している人に入れる
+            status = '聴牌' if tenpai else 'ノーテン'               # ステータスをstr型で
+            self.logger.log(f"{SEAT_WIND_NAMES[(i - self.dealer) % 4]}家 {status} 待ち:{''.join(waits)}")   # ログ
+        count = sum(tenpais)                                        # 聴牌している人を数える
+        if count == 1:                                              # 1人聴牌の時は
+            for i, flag in enumerate(tenpais):                      # 聴牌している人は3000点貰う。ノーテンの人は1000点払う
                 self.players[i].score += 3000 if flag else -1000
-        elif count == 2:
-            for i, flag in enumerate(tenpais):
+        elif count == 2:                                            # 2人聴牌の時は
+            for i, flag in enumerate(tenpais):                      # 聴牌している人は1500点貰う。ノーテンの人は1500点払う
                 self.players[i].score += 1500 if flag else -1500
-        elif count == 3:
-            for i, flag in enumerate(tenpais):
+        elif count == 3:                                            # 3人聴牌の時は
+            for i, flag in enumerate(tenpais):                      # 聴牌している人は1000点貰う。ノーテンの人は3000点払う
                 self.players[i].score += 1000 if flag else -3000
-        self.logger.log(f'流局 {self.score_line()}')
-        self.round_end(RoundResult(False, None, None, False, tenpais[self.dealer], 'draw'))
+        self.logger.log(f'流局 {self.score_line()}')                # ログ排出
+        self.round_end(RoundResult(False, None, None, False, tenpais[self.dealer], 'draw')) # ラウンドリザルトを排出
 
     def round_end(self, result: RoundResult) -> None:
         print(f'{ROUND_WIND_NAMES[self.round_wind]}{self.round_number}局 {self.honba}本場 結果:{result.reason} {self.score_line()}')
