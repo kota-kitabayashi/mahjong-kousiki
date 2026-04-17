@@ -372,13 +372,14 @@ class MahjongGame:
             results.append((i, score / 1000 + uma[rank]))                                                   # その人にあったウマを加算
         return sorted(results)
 
+    # 半荘
     def play_hanchan(self) -> None:
-        while self.round_wind < 2:
+        while self.round_wind < 2:              # 南場終了まで局を回す
             self.play_round()
-        self.logger.log('===== 半荘終了 =====')
-        for i, p in enumerate(self.players):
+        self.logger.log('===== 半荘終了 =====') # ログ
+        for i, p in enumerate(self.players):    # 素点をログ
             self.logger.log(f'最終素点 {SEAT_WIND_NAMES[i]}:{p.score}')
-        final = self.final_scores()
-        for i, pt in final:
+        final = self.final_scores()             # 最後のスコアを出す
+        for i, pt in final:                     # ログする
             print(f'{SEAT_WIND_NAMES[i]}家 最終素点:{self.players[i].score} 半荘スコア:{pt:.1f}')
             self.logger.log(f'{SEAT_WIND_NAMES[i]}家 半荘スコア:{pt:.1f}')
