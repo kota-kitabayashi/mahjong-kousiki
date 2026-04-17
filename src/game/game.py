@@ -317,15 +317,16 @@ class MahjongGame:
         self.logger.log(f'流局 {self.score_line()}')                # ログ排出
         self.round_end(RoundResult(False, None, None, False, tenpais[self.dealer], 'draw')) # ラウンドリザルトを排出
 
+    # 局終了時の処理
     def round_end(self, result: RoundResult) -> None:
         print(f'{ROUND_WIND_NAMES[self.round_wind]}{self.round_number}局 {self.honba}本場 結果:{result.reason} {self.score_line()}')
-        if result.renchan:
+        if result.renchan:                          # 連荘していたら本場を増やす
             self.honba += 1
-        else:
-            self.honba = 0
-            self.dealer = (self.dealer + 1) % 4
-            self.round_number += 1
-            if self.round_number == 5:
+        else:                                       # 連荘していない時
+            self.honba = 0                          # 本場0にする
+            self.dealer = (self.dealer + 1) % 4     # 親を変える
+            self.round_number += 1                  # 局数更新
+            if self.round_number == 5:              # 局数更新と南場東場の切り替え
                 self.round_number = 1
                 self.round_wind += 1
 
