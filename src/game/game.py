@@ -362,13 +362,14 @@ class MahjongGame:
                 return
             self.current_turn = (seat + 1) % 4              # 打つ人を変える
 
+    # 最後のスコアを計算する
     def final_scores(self) -> List[Tuple[int, float]]:
-        ranking = sorted([(i, p.score) for i, p in enumerate(self.players)], key=lambda x: (-x[1], x[0]))
-        floats = sum(1 for _, s in ranking if s >= 30000)
-        uma = UMA_ONE_FLOAT if floats == 1 else UMA_TWO_FLOAT if floats == 2 else UMA_THREE_FLOAT
-        results = []
+        ranking = sorted([(i, p.score) for i, p in enumerate(self.players)], key=lambda x: (-x[1], x[0]))   # 点数が高い順に並び替え
+        floats = sum(1 for _, s in ranking if s >= 30000)                                                   # 浮きが何人いるかを数える
+        uma = UMA_ONE_FLOAT if floats == 1 else UMA_TWO_FLOAT if floats == 2 else UMA_THREE_FLOAT           # ウマを決定
+        results = []                                                                                        # リザルトリストを作成
         for rank, (i, score) in enumerate(ranking):
-            results.append((i, score / 1000 + uma[rank]))
+            results.append((i, score / 1000 + uma[rank]))                                                   # その人にあったウマを加算
         return sorted(results)
 
     def play_hanchan(self) -> None:
