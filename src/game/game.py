@@ -330,36 +330,37 @@ class MahjongGame:
                 self.round_number = 1
                 self.round_wind += 1
 
+    # 一局を実行
     def play_round(self) -> None:
-        self.setup_round()
+        self.setup_round()                                  # ラウンドを作成
         while True:
             if len(self.wall) == 0:
-                self.apply_draw()
+                self.apply_draw()                           # 牌山がないなら流局
                 return
-            seat = self.current_turn
-            p = self.players[seat]
-            drawn = self.draw_tile(seat)
-            self.logger.log(f'{SEAT_WIND_NAMES[(seat - self.dealer) % 4]}家 ツモ {drawn} 手牌:{p.hand_string()}')
-            if self.try_tsumo(seat, drawn):
+            seat = self.current_turn                        # 今の手番のプレイヤーをseatに入れる
+            p = self.players[seat]                          # プレイヤーを指定
+            drawn = self.draw_tile(seat)                    # ツモ処理
+            self.logger.log(f'{SEAT_WIND_NAMES[(seat - self.dealer) % 4]}家 ツモ {drawn} 手牌:{p.hand_string()}') # ログ
+            if self.try_tsumo(seat, drawn):                 # ツモできるかどうか？
                 return
-            self.maybe_declare_riichi(seat)
-            discard = self.choose_and_discard(seat, drawn)
-            if self.try_ron_claimers(discard, seat):
+            self.maybe_declare_riichi(seat)                 # リーチできるかどうか
+            discard = self.choose_and_discard(seat, drawn)  # 捨て牌に捨てる
+            if self.try_ron_claimers(discard, seat):        # 周りのプレイヤーがロンできるかの確認
                 return
-            if self.resolve_calls(discard, seat):
-                for pl in self.players:
+            if self.resolve_calls(discard, seat):           # 鳴けるかどうか
+                for pl in self.players:                     # なぜか鳴きが入ると、全員のフリテンを解消している
                     pl.temp_furiten_turn = False
-                self.first_cycle = False
+                self.first_cycle = False                    # 鳴きが入っているのでみんなの一巡目ではない
                 continue
-            p.first_turn = False
+            p.first_turn = False                            # プレイヤーの一巡目もなくす
             for i in range(4):
                 if i != seat:
-                    self.players[i].temp_furiten_turn = False
-            self.first_cycle = False
-            if len(self.wall) == 0:
+                    self.players[i].temp_furiten_turn = False   # なぜかここでフリテンを解消している
+            self.first_cycle = False                        # なぜか一巡目ではないことになっている
+            if len(self.wall) == 0:                         # ここでも流局しているかの確認をしている
                 self.apply_draw()
                 return
-            self.current_turn = (seat + 1) % 4
+            self.current_turn = (seat + 1) % 4              # 打つ人を変える
 
     def final_scores(self) -> List[Tuple[int, float]]:
         ranking = sorted([(i, p.score) for i, p in enumerate(self.players)], key=lambda x: (-x[1], x[0]))
