@@ -1,7 +1,3 @@
 # mahjong-game
 
-Python で作成した CUI 麻雀ゲームです。
-
-## 実行方法
-```bash
-python main.py
+僕が麻雀ゲームを作るために一旦pythonで下書きしたかっただけ
